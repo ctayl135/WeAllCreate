@@ -9,7 +9,7 @@
     body { font-family: Arial, Helvetica, sans-serif; background: #09090b; color: #fff; line-height: 1.6; }
     button, input, textarea, select { font-family: inherit; }
     button { cursor: pointer; border: none; }
-    img { max-width: 100%; display: block; }
+    img { max-width: 100%; display: block; background: linear-gradient(135deg, rgba(139,92,246,.35), rgba(34,211,238,.15)); }
     .container { width: min(1200px, 92%); margin: 0 auto; }
 
     header { position: sticky; top: 0; z-index: 100; background: rgba(9,9,11,.92); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(255,255,255,.1); }
@@ -676,6 +676,35 @@
   <footer><div class="container">© 2026 WeAllCreate. Built for creators who want to be seen and paid.</div></footer>
 
   <script>
+    function fallbackImage(label = 'WeAllCreate') {
+      const cleanLabel = String(label).replace(/&/g, 'and').replace(/[<>]/g, '');
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600">
+          <defs>
+            <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#8b5cf6"/>
+              <stop offset="50%" stop-color="#111827"/>
+              <stop offset="100%" stop-color="#06b6d4"/>
+            </linearGradient>
+          </defs>
+          <rect width="900" height="600" fill="url(#g)"/>
+          <circle cx="735" cy="120" r="150" fill="rgba(255,255,255,.08)"/>
+          <circle cx="140" cy="510" r="180" fill="rgba(255,255,255,.07)"/>
+          <text x="50%" y="46%" text-anchor="middle" fill="white" font-family="Arial" font-size="54" font-weight="800">WeAllCreate</text>
+          <text x="50%" y="56%" text-anchor="middle" fill="#ddd6fe" font-family="Arial" font-size="30" font-weight="600">${cleanLabel}</text>
+        </svg>`;
+      return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+    }
+
+    function protectImages() {
+      document.querySelectorAll('img').forEach(img => {
+        img.onerror = function () {
+          this.onerror = null;
+          this.src = fallbackImage(this.alt || 'Creative Preview');
+        };
+      });
+    }
+
     const categoryGroups = [
       { group: "Visual Media", icon: "📷", items: ["Photography", "Videography", "Film", "Drone Pilots", "Editors", "Colorists", "Live Streamers", "Photobooth Owners"] },
       { group: "Music & Audio", icon: "🎵", items: ["Artists", "Producers", "DJs", "Audio Engineers", "Songwriters", "Podcast Hosts", "Voice Actors", "Mixing & Mastering"] },
@@ -813,6 +842,7 @@
         if (pageId === "home" && btn.textContent === "Home") btn.classList.add("active");
         if (pageId === "marketplace" && btn.textContent === "Marketplace") btn.classList.add("active");
       });
+      protectImages();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -1147,6 +1177,7 @@
     renderSpotlight();
     openDetail(creations[0]);
     showPage("home");
+    protectImages();
   </script>
 </body>
 </html>
