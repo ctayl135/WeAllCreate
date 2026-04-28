@@ -140,6 +140,7 @@
         <button class="nav-btn" onclick="showPage('collab')">Collab</button>
         <button class="nav-btn" onclick="showPage('spotlight')">Spotlight</button>
         <button class="nav-btn" onclick="showPage('about')">About</button>
+        <button class="nav-btn" onclick="showPage('dashboard')">Dashboard</button>
       </nav>
       <div class="header-actions">
         <div class="search-pill">Search</div>
@@ -506,6 +507,81 @@
       </div>
     </section>
 
+    <section id="dashboard" class="page">
+      <div class="container">
+        <h1 class="page-title">Creator Admin Dashboard</h1>
+        <p class="page-subtitle">Use this starter dashboard to add new creators, marketplace products, community posts, and collaboration requests without touching the main code every time.</p>
+
+        <div class="card info-box">
+          <span class="badge">Starter Version</span>
+          <h2>How this works right now</h2>
+          <p>This dashboard saves new items in your browser using localStorage. That means it is good for testing the idea, but it is not a real shared database yet. The next serious upgrade is connecting this dashboard to Supabase so everybody sees the same live updates.</p>
+        </div>
+
+        <div class="category-directory">
+          <form class="card upload-form" onsubmit="addCreator(event)">
+            <h2>Add Creator</h2>
+            <input id="newCreatorName" type="text" placeholder="Creator name" required>
+            <input id="newCreatorCategory" type="text" placeholder="Category, example: Photographer" required>
+            <input id="newCreatorLocation" type="text" placeholder="Location, example: Atlanta" required>
+            <select id="newCreatorPrice">
+              <option value="budget">Budget Friendly</option>
+              <option value="mid">Mid Range</option>
+              <option value="premium">Premium</option>
+            </select>
+            <input id="newCreatorImage" type="text" placeholder="Image URL">
+            <textarea id="newCreatorSpecialty" placeholder="What does this creator do?" required></textarea>
+            <button class="upload-btn" style="width:100%; padding:14px; border-radius:999px; font-weight:800;">Add Creator</button>
+          </form>
+
+          <form class="card upload-form" onsubmit="addProduct(event)">
+            <h2>Add Product</h2>
+            <input id="newProductName" type="text" placeholder="Product name" required>
+            <input id="newProductCreator" type="text" placeholder="Creator name" required>
+            <select id="newProductType">
+              <option>Presets</option>
+              <option>Guidebook</option>
+              <option>Templates</option>
+              <option>Beats</option>
+              <option>Courses</option>
+              <option>Services Kit</option>
+            </select>
+            <input id="newProductLane" type="text" placeholder="Creative lane, example: Photography" required>
+            <input id="newProductPrice" type="number" placeholder="Price" required>
+            <input id="newProductImage" type="text" placeholder="Image URL">
+            <textarea id="newProductDescription" placeholder="Product description" required></textarea>
+            <button class="upload-btn" style="width:100%; padding:14px; border-radius:999px; font-weight:800;">Add Product</button>
+          </form>
+
+          <form class="card upload-form" onsubmit="addCommunityPost(event)">
+            <h2>Add Community Post</h2>
+            <input id="newPostAuthor" type="text" placeholder="Author name" required>
+            <input id="newPostTag" type="text" placeholder="Tag, example: Opportunity" required>
+            <textarea id="newPostText" placeholder="Post text" required></textarea>
+            <button class="upload-btn" style="width:100%; padding:14px; border-radius:999px; font-weight:800;">Add Post</button>
+          </form>
+
+          <form class="card upload-form" onsubmit="addCollab(event)">
+            <h2>Add Collab Request</h2>
+            <input id="newCollabTitle" type="text" placeholder="Collab request title" required>
+            <input id="newCollabTag" type="text" placeholder="Tag, example: Video" required>
+            <select id="newCollabStatus">
+              <option>Open</option>
+              <option>In Progress</option>
+              <option>Completed</option>
+            </select>
+            <button class="upload-btn" style="width:100%; padding:14px; border-radius:999px; font-weight:800;">Add Collab</button>
+          </form>
+        </div>
+
+        <div class="card info-box" style="margin-top:28px;">
+          <h2>Dashboard Controls</h2>
+          <p>Use this only if you want to erase the test content you added from this browser.</p><br>
+          <button class="mini-btn" onclick="clearDashboardData()">Clear Added Test Data</button>
+        </div>
+      </div>
+    </section>
+
     <section id="about" class="page">
       <div class="container">
         <h1 class="page-title">About WeAllCreate</h1>
@@ -543,6 +619,11 @@
       { name: "Verse Room", category: "Writers", lane: "Art & Writing", location: "Remote", price: "budget", available: true, specialty: "Poetry, captions, artist bios, blog writing, and brand storytelling.", image: "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=80" }
     ];
 
+    let savedCreators = JSON.parse(localStorage.getItem('weallcreate_creators') || '[]');
+    let savedProducts = JSON.parse(localStorage.getItem('weallcreate_products') || '[]');
+    let savedPosts = JSON.parse(localStorage.getItem('weallcreate_posts') || '[]');
+    let savedCollabs = JSON.parse(localStorage.getItem('weallcreate_collabs') || '[]');
+
     const products = [
       { name: "Cinematic Lightroom Preset Pack", creator: "Chance Visuals", type: "Presets", lane: "Photography", price: 15, description: "Clean cinematic tones for street photos, portraits, and night shoots.", image: "https://images.unsplash.com/photo-1492724441997-5dc865305da7?auto=format&fit=crop&w=900&q=80" },
       { name: "Music Artist Growth Guide", creator: "Nova Sound", type: "Guidebook", lane: "Music", price: 25, description: "A step-by-step guide for independent artists building their brand and release strategy.", image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80" },
@@ -553,6 +634,11 @@
       { name: "Fitness Content Calendar", creator: "Coach Lane", type: "Templates", lane: "Fitness", price: 12, description: "A content planning template for trainers, coaches, and wellness creators.", image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80" },
       { name: "Client Onboarding Kit", creator: "BuildMode Dev", type: "Services Kit", lane: "Business", price: 55, description: "Forms, checklists, and templates for creators who book clients regularly.", image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80" }
     ];
+
+    profiles.push(...savedCreators);
+    products.push(...savedProducts);
+    communityPosts.push(...savedPosts);
+    collabs.push(...savedCollabs);
 
     const creations = profiles.slice(0, 4).map((p, i) => ({
       title: ["Downtown Night Shoot", "Studio Session Recap", "Fresh Fade Showcase", "Custom Brand Flyer"][i],
@@ -821,6 +907,97 @@
       document.getElementById("spotlight-grid").innerHTML = profiles.slice(1,4).map(createProfileCard).join("");
     }
 
+    function addCreator(event) {
+      event.preventDefault();
+      const creator = {
+        name: document.getElementById('newCreatorName').value,
+        category: document.getElementById('newCreatorCategory').value,
+        lane: document.getElementById('newCreatorCategory').value,
+        location: document.getElementById('newCreatorLocation').value,
+        price: document.getElementById('newCreatorPrice').value,
+        available: true,
+        specialty: document.getElementById('newCreatorSpecialty').value,
+        image: document.getElementById('newCreatorImage').value || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80'
+      };
+      savedCreators.push(creator);
+      localStorage.setItem('weallcreate_creators', JSON.stringify(savedCreators));
+      profiles.push(creator);
+      event.target.reset();
+      refreshAll();
+      alert('Creator added. Check Explore to see it.');
+    }
+
+    function addProduct(event) {
+      event.preventDefault();
+      const product = {
+        name: document.getElementById('newProductName').value,
+        creator: document.getElementById('newProductCreator').value,
+        type: document.getElementById('newProductType').value,
+        lane: document.getElementById('newProductLane').value,
+        price: Number(document.getElementById('newProductPrice').value),
+        description: document.getElementById('newProductDescription').value,
+        image: document.getElementById('newProductImage').value || 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80'
+      };
+      savedProducts.push(product);
+      localStorage.setItem('weallcreate_products', JSON.stringify(savedProducts));
+      products.push(product);
+      event.target.reset();
+      refreshAll();
+      alert('Product added. Check Marketplace to see it.');
+    }
+
+    function addCommunityPost(event) {
+      event.preventDefault();
+      const post = {
+        author: document.getElementById('newPostAuthor').value,
+        tag: document.getElementById('newPostTag').value,
+        text: document.getElementById('newPostText').value,
+        stats: '0 likes · 0 comments'
+      };
+      savedPosts.push(post);
+      localStorage.setItem('weallcreate_posts', JSON.stringify(savedPosts));
+      communityPosts.push(post);
+      event.target.reset();
+      refreshAll();
+      alert('Post added. Check Community to see it.');
+    }
+
+    function addCollab(event) {
+      event.preventDefault();
+      const collab = {
+        title: document.getElementById('newCollabTitle').value,
+        tag: document.getElementById('newCollabTag').value,
+        status: document.getElementById('newCollabStatus').value
+      };
+      savedCollabs.push(collab);
+      localStorage.setItem('weallcreate_collabs', JSON.stringify(savedCollabs));
+      collabs.push(collab);
+      event.target.reset();
+      refreshAll();
+      alert('Collab request added. Check Collab to see it.');
+    }
+
+    function clearDashboardData() {
+      localStorage.removeItem('weallcreate_creators');
+      localStorage.removeItem('weallcreate_products');
+      localStorage.removeItem('weallcreate_posts');
+      localStorage.removeItem('weallcreate_collabs');
+      alert('Test data cleared. Refresh the page.');
+    }
+
+    function refreshAll() {
+      renderHome();
+      renderCategories();
+      renderProfiles();
+      renderMarketplace();
+      renderCollabs();
+      renderCommunity();
+      renderMessages();
+      renderGroups();
+      renderReviews();
+      renderSpotlight();
+    }
+
     renderHome();
     renderCategories();
     renderProfiles();
@@ -836,3 +1013,4 @@
   </script>
 </body>
 </html>
+
