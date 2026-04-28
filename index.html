@@ -55,16 +55,17 @@
     .profile-grid { grid-template-columns: repeat(3, 1fr); }
     .creator-grid { grid-template-columns: repeat(3, 1fr); }
 
-    .creation-card, .profile-card { text-align: left; color: #fff; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.1); border-radius: 28px; overflow: hidden; transition: .2s ease; width: 100%; }
-    .creation-card:hover, .profile-card:hover { transform: translateY(-3px); background: rgba(255,255,255,.08); }
-    .creation-card img, .profile-card img { width: 100%; height: 230px; object-fit: cover; }
-    .creation-content, .profile-content { padding: 22px; }
+    .creation-card, .profile-card, .product-card { text-align: left; color: #fff; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.1); border-radius: 28px; overflow: hidden; transition: .2s ease; width: 100%; }
+    .creation-card:hover, .profile-card:hover, .product-card:hover { transform: translateY(-3px); background: rgba(255,255,255,.08); }
+    .creation-card img, .profile-card img, .product-card img { width: 100%; height: 230px; object-fit: cover; }
+    .creation-content, .profile-content, .product-content { padding: 22px; }
     .tag-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 12px; }
     .tag { background: rgba(139,92,246,.16); color: #ddd6fe; padding: 5px 10px; border-radius: 999px; font-size: .75rem; font-weight: 800; }
     .creator-name, .muted { color: #a1a1aa; font-size: .9rem; }
-    .creation-content h3, .profile-content h3 { font-size: 1.2rem; margin-bottom: 8px; }
-    .creation-content p, .profile-content p { color: #a1a1aa; font-size: .92rem; margin-bottom: 14px; }
+    .creation-content h3, .profile-content h3, .product-content h3 { font-size: 1.2rem; margin-bottom: 8px; }
+    .creation-content p, .profile-content p, .product-content p { color: #a1a1aa; font-size: .92rem; margin-bottom: 14px; }
     .stats { color: #a1a1aa; font-size: .9rem; margin-bottom: 14px; }
+    .price { font-size: 1.35rem; font-weight: 900; color: #fff; margin-bottom: 14px; }
     .card-actions { display: flex; gap: 10px; flex-wrap: wrap; }
     .mini-btn { padding: 9px 13px; border-radius: 999px; font-weight: 800; background: rgba(255,255,255,.1); color: white; }
     .mini-btn.primary { background: #8b5cf6; }
@@ -92,7 +93,7 @@
     .info-box p { color: #d4d4d8; margin-top: 10px; }
     .upload-form { max-width: 760px; padding: 26px; }
     .upload-drop { min-height: 170px; display: grid; place-items: center; border: 1px dashed rgba(255,255,255,.22); border-radius: 24px; color: #a1a1aa; margin: 8px 0 16px; }
-    input, textarea { width: 100%; border: 1px solid rgba(255,255,255,.1); background: #18181b; color: #fff; padding: 14px 16px; border-radius: 18px; margin-bottom: 14px; outline: none; }
+    input, textarea, select { width: 100%; border: 1px solid rgba(255,255,255,.1); background: #18181b; color: #fff; padding: 14px 16px; border-radius: 18px; margin-bottom: 14px; outline: none; }
     textarea { min-height: 140px; resize: vertical; }
     .collab-layout { grid-template-columns: 360px 1fr; }
     .collab-request { padding: 22px; margin-bottom: 15px; }
@@ -101,6 +102,7 @@
     .spotlight-card h2 { font-size: 3rem; line-height: 1; margin: 12px 0; }
     .creator-card { padding: 24px; transition: .2s ease; }
     .booking-banner { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; padding: 24px; margin: 28px 0; background: linear-gradient(135deg, rgba(139,92,246,.22), rgba(255,255,255,.04)); }
+    .marketplace-hero { padding: 28px; margin: 28px 0; background: linear-gradient(135deg, rgba(139,92,246,.26), rgba(34,211,238,.08)); }
 
     footer { border-top: 1px solid rgba(255,255,255,.1); text-align: center; color: #71717a; padding: 30px 0; margin-top: 40px; }
 
@@ -131,6 +133,7 @@
         <button class="nav-btn active" onclick="showPage('home')">Home</button>
         <button class="nav-btn" onclick="showPage('explore')">Explore</button>
         <button class="nav-btn" onclick="showPage('categories')">Categories</button>
+        <button class="nav-btn" onclick="showPage('marketplace')">Marketplace</button>
         <button class="nav-btn" onclick="showPage('collab')">Collab</button>
         <button class="nav-btn" onclick="showPage('spotlight')">Spotlight</button>
         <button class="nav-btn" onclick="showPage('about')">About</button>
@@ -147,11 +150,12 @@
     <section id="home" class="page active">
       <div class="container hero">
         <div>
-          <span class="badge">Instagram + LinkedIn + Fiverr for creatives</span>
-          <h2>Find talent. Show your work. Build with other creatives.</h2>
+          <span class="badge">Instagram + LinkedIn + Fiverr + Gumroad for creatives</span>
+          <h2>Find talent. Show your work. Sell what you create.</h2>
           <p>WeAllCreate is a discovery platform for every type of creator: artists, photographers, videographers, musicians, barbers, designers, mechanics, chefs, educators, entrepreneurs, and more.</p>
           <div class="button-row">
             <button class="primary-btn" onclick="showPage('explore')">Explore Creators</button>
+            <button class="secondary-btn" onclick="showPage('marketplace')">Shop Marketplace</button>
             <button class="secondary-btn" onclick="showPage('upload')">Upload Your Work</button>
           </div>
         </div>
@@ -178,7 +182,7 @@
           </div>
           <div class="card cta-card">
             <h3>Ready to be seen?</h3>
-            <p>Post your work, describe your services, and start building your creative network.</p><br>
+            <p>Post your work, sell digital products, describe your services, and start building your creative network.</p><br>
             <button class="primary-btn" onclick="showPage('upload')">Post Now</button>
           </div>
         </aside>
@@ -189,7 +193,6 @@
       <div class="container">
         <h1 class="page-title">Explore Creators</h1>
         <p class="page-subtitle">Search, filter, hire, and connect with creators across every lane.</p>
-
         <div class="filter-panel">
           <input id="searchInput" type="text" placeholder="Search creators, services, or keywords" oninput="renderProfiles()">
           <select id="categoryFilter" onchange="renderProfiles()"></select>
@@ -204,7 +207,6 @@
             <option value="premium">Premium</option>
           </select>
         </div>
-
         <div class="filter-row">
           <button onclick="quickFilter('Available Now')">Available Now</button>
           <button onclick="quickFilter('Photography')">Photography</button>
@@ -213,8 +215,108 @@
           <button onclick="quickFilter('Business')">Business</button>
           <button onclick="clearFilters()">Clear Filters</button>
         </div>
-
         <div class="profile-grid" id="profile-grid"></div>
+      </div>
+    </section>
+
+    <section id="categories" class="page">
+      <div class="container">
+        <h1 class="page-title">Creative Categories</h1>
+        <p class="page-subtitle">A full directory built to make WeAllCreate suitable for everybody.</p>
+        <div class="category-directory" id="category-directory"></div>
+      </div>
+    </section>
+
+    <section id="marketplace" class="page">
+      <div class="container">
+        <h1 class="page-title">Creator Marketplace</h1>
+        <p class="page-subtitle">A place where creatives can sell digital products, tools, templates, guides, presets, beats, and resources on the side.</p>
+
+        <div class="card marketplace-hero">
+          <h2>Sell more than your service.</h2>
+          <p class="muted">Creators can make money from downloadable products like Lightroom presets, editing packs, guidebooks, beat packs, Notion templates, workout plans, design templates, business guides, and more.</p>
+          <br>
+          <button class="primary-btn" onclick="showPage('sell-product')">Start Selling</button>
+        </div>
+
+        <div class="filter-panel">
+          <input id="productSearch" type="text" placeholder="Search products, creators, or keywords" oninput="renderMarketplace()">
+          <select id="productTypeFilter" onchange="renderMarketplace()">
+            <option value="All">All Products</option>
+            <option>Presets</option>
+            <option>Guidebook</option>
+            <option>Templates</option>
+            <option>Beats</option>
+            <option>Courses</option>
+            <option>Services Kit</option>
+          </select>
+          <select id="productPriceFilter" onchange="renderMarketplace()">
+            <option value="All">All Prices</option>
+            <option value="under20">Under $20</option>
+            <option value="20to50">$20 - $50</option>
+            <option value="over50">$50+</option>
+          </select>
+          <select id="productCategoryFilter" onchange="renderMarketplace()">
+            <option value="All">All Creative Lanes</option>
+            <option>Photography</option>
+            <option>Music</option>
+            <option>Design</option>
+            <option>Business</option>
+            <option>Beauty</option>
+            <option>Fitness</option>
+          </select>
+        </div>
+
+        <div class="profile-grid" id="marketplace-grid"></div>
+
+        <div class="card info-box" style="margin-top: 34px;">
+          <span class="badge">Next Level Roadmap</span>
+          <h2>Making the marketplace real</h2>
+          <p>Right now, the “Buy Now” button is a visual placeholder. The next stage is turning WeAllCreate into a real creator marketplace where people can actually sell, purchase, and download products.</p>
+          <br>
+          <div class="category-directory">
+            <div class="card category-group">
+              <div class="category-icon">💳</div>
+              <h2>1. Payments</h2>
+              <p class="muted">Connect Stripe or PayPal so creators can get paid directly for presets, guides, templates, beats, courses, and digital products.</p>
+            </div>
+            <div class="card category-group">
+              <div class="category-icon">📊</div>
+              <h2>2. Creator Dashboard</h2>
+              <p class="muted">Give creators a dashboard where they can upload products, set prices, manage listings, and track sales.</p>
+            </div>
+            <div class="card category-group">
+              <div class="category-icon">📥</div>
+              <h2>3. Download System</h2>
+              <p class="muted">After someone purchases a product, they should receive access to the file through a secure download link or buyer account.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="sell-product" class="page">
+      <div class="container">
+        <h1 class="page-title">Sell a Product</h1>
+        <p class="page-subtitle">This is the foundation for creators to list digital products. Later, this can connect to Stripe, PayPal, or Gumroad-style checkout.</p>
+        <form class="card upload-form">
+          <label><strong>Product Image</strong></label>
+          <div class="upload-drop">Drop product cover image here</div>
+          <input type="text" placeholder="Product name">
+          <textarea placeholder="Product description"></textarea>
+          <select>
+            <option>Product Type</option>
+            <option>Presets</option>
+            <option>Guidebook</option>
+            <option>Templates</option>
+            <option>Beats</option>
+            <option>Course</option>
+            <option>Digital Download</option>
+          </select>
+          <input type="text" placeholder="Price, example: $25">
+          <input type="text" placeholder="Download link or product file location">
+          <button type="button" class="upload-btn" style="width:100%; padding:14px; border-radius:999px; font-weight:800;">Publish Product</button>
+        </form>
       </div>
     </section>
 
@@ -255,14 +357,6 @@
       </div>
     </section>
 
-    <section id="categories" class="page">
-      <div class="container">
-        <h1 class="page-title">Creative Categories</h1>
-        <p class="page-subtitle">A full directory built to make WeAllCreate suitable for everybody.</p>
-        <div class="category-directory" id="category-directory"></div>
-      </div>
-    </section>
-
     <section id="upload" class="page">
       <div class="container">
         <h1 class="page-title">Upload Creation</h1>
@@ -273,7 +367,7 @@
           <input type="text" placeholder="Title">
           <textarea placeholder="Description"></textarea>
           <input type="text" placeholder="Tags, separated by commas">
-          <select style="width:100%; margin-bottom:14px;"><option>Select Category</option></select>
+          <select><option>Select Category</option></select>
           <button type="button" class="upload-btn" style="width:100%; padding:14px; border-radius:999px; font-weight:800;">Publish</button>
         </form>
       </div>
@@ -334,15 +428,15 @@
     <section id="about" class="page">
       <div class="container">
         <h1 class="page-title">About WeAllCreate</h1>
-        <div class="card info-box"><h2>Mission</h2><p>WeAllCreate exists to help local creatives get discovered, build trust, show proof of work, and connect with people who need their talent.</p></div>
-        <div class="card info-box"><h2>How It Works</h2><p>Create a profile, upload work, browse categories, post collaboration requests, and connect with creators in your area.</p></div>
-        <div class="card info-box"><h2>Business Model</h2><p>Future revenue can come from featured profiles, booking fees, creator verification, premium portfolios, and business accounts.</p></div>
+        <div class="card info-box"><h2>Mission</h2><p>WeAllCreate exists to help local creatives get discovered, build trust, show proof of work, sell digital products, and connect with people who need their talent.</p></div>
+        <div class="card info-box"><h2>How It Works</h2><p>Create a profile, upload work, browse categories, post collaboration requests, list marketplace products, and connect with creators in your area.</p></div>
+        <div class="card info-box"><h2>Business Model</h2><p>Future revenue can come from featured profiles, booking fees, creator verification, premium portfolios, product sales, marketplace commissions, and business accounts.</p></div>
         <div class="card info-box"><h2>FAQ / Contact</h2><p>This area can later include support, contact forms, pricing, verification, and account details.</p></div>
       </div>
     </section>
   </main>
 
-  <footer><div class="container">© 2026 WeAllCreate. Built for creators who want to be seen.</div></footer>
+  <footer><div class="container">© 2026 WeAllCreate. Built for creators who want to be seen and paid.</div></footer>
 
   <script>
     const categoryGroups = [
@@ -366,6 +460,17 @@
       { name: "Kali Ink", category: "Tattoo Artists", lane: "Fashion & Beauty", location: "Atlanta", price: "premium", available: false, specialty: "Fine line tattoos, custom artwork, and studio content.", image: "https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?auto=format&fit=crop&w=900&q=80" },
       { name: "BuildMode Dev", category: "Web Design", lane: "Design & Tech", location: "Remote", price: "premium", available: true, specialty: "Websites, landing pages, portfolios, and startup MVPs.", image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=80" },
       { name: "Verse Room", category: "Writers", lane: "Art & Writing", location: "Remote", price: "budget", available: true, specialty: "Poetry, captions, artist bios, blog writing, and brand storytelling.", image: "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=80" }
+    ];
+
+    const products = [
+      { name: "Cinematic Lightroom Preset Pack", creator: "Chance Visuals", type: "Presets", lane: "Photography", price: 15, description: "Clean cinematic tones for street photos, portraits, and night shoots.", image: "https://images.unsplash.com/photo-1492724441997-5dc865305da7?auto=format&fit=crop&w=900&q=80" },
+      { name: "Music Artist Growth Guide", creator: "Nova Sound", type: "Guidebook", lane: "Music", price: 25, description: "A step-by-step guide for independent artists building their brand and release strategy.", image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80" },
+      { name: "Barber Marketing Ebook", creator: "Elite Cuts", type: "Guidebook", lane: "Beauty", price: 10, description: "A simple guide to help barbers grow clientele through content and local branding.", image: "https://images.unsplash.com/photo-1512499617640-c2f999098c01?auto=format&fit=crop&w=900&q=80" },
+      { name: "Logo Design Template Pack", creator: "Mia Creates", type: "Templates", lane: "Design", price: 20, description: "Editable starter templates for logos, flyers, and brand identity projects.", image: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=900&q=80" },
+      { name: "Producer Beat Starter Pack", creator: "Nova Sound", type: "Beats", lane: "Music", price: 35, description: "A pack of beats, loops, and stems for upcoming artists and producers.", image: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=900&q=80" },
+      { name: "Photo Business Starter Guide", creator: "Chance Visuals", type: "Guidebook", lane: "Business", price: 30, description: "A practical guide for pricing shoots, finding clients, and building a creative brand.", image: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80" },
+      { name: "Fitness Content Calendar", creator: "Coach Lane", type: "Templates", lane: "Fitness", price: 12, description: "A content planning template for trainers, coaches, and wellness creators.", image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80" },
+      { name: "Client Onboarding Kit", creator: "BuildMode Dev", type: "Services Kit", lane: "Business", price: 55, description: "Forms, checklists, and templates for creators who book clients regularly.", image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80" }
     ];
 
     const creations = profiles.slice(0, 4).map((p, i) => ({
@@ -394,6 +499,7 @@
       document.querySelectorAll(".nav-btn").forEach(btn => {
         if (btn.textContent.toLowerCase() === pageId) btn.classList.add("active");
         if (pageId === "home" && btn.textContent === "Home") btn.classList.add("active");
+        if (pageId === "marketplace" && btn.textContent === "Marketplace") btn.classList.add("active");
       });
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -427,12 +533,28 @@
         </div>`;
     }
 
+    function createProductCard(product) {
+      return `
+        <div class="product-card">
+          <img src="${product.image}" alt="${product.name}">
+          <div class="product-content">
+            <div class="tag-row"><span class="tag">${product.type}</span><span class="creator-name">by ${product.creator}</span></div>
+            <h3>${product.name}</h3>
+            <p>${product.description}</p>
+            <div class="price">$${product.price}</div>
+            <div class="card-actions">
+              <button class="mini-btn primary">Buy Now</button>
+              <button class="mini-btn" onclick="openProfile('${product.creator}')">View Creator</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
     function renderHome() {
-      const homeCats = categoryGroups.map(group => `
+      document.getElementById("home-categories").innerHTML = categoryGroups.map(group => `
         <button class="category-card" onclick="showPage('categories')">
           <div class="category-icon">${group.icon}</div><strong>${group.group}</strong><span>${group.items.slice(0,4).join(", ")}</span>
         </button>`).join("");
-      document.getElementById("home-categories").innerHTML = homeCats;
       document.getElementById("home-feed").innerHTML = creations.map(createWorkCard).join("");
       document.getElementById("trending-creators").innerHTML = profiles.slice(0,4).map(p => `<div class="creator-list-item"><div class="avatar">${p.name[0]}</div><div><strong>${p.name}</strong><br><span class="creator-name">${p.category} · ${p.location}</span></div></div>`).join("");
     }
@@ -443,7 +565,6 @@
           <div class="category-icon">${group.icon}</div><h2>${group.group}</h2>
           <div class="subcategory-list">${group.items.map(item => `<span>${item}</span>`).join("")}</div>
         </div>`).join("");
-
       const categorySelect = document.getElementById("categoryFilter");
       categorySelect.innerHTML = `<option value="All">All Categories</option>` + categoryGroups.flatMap(g => [g.group, ...g.items]).map(item => `<option>${item}</option>`).join("");
     }
@@ -453,24 +574,33 @@
       const category = document.getElementById("categoryFilter")?.value || "All";
       const location = document.getElementById("locationFilter")?.value || "All";
       const price = document.getElementById("priceFilter")?.value || "All";
-
       const filtered = profiles.filter(p => {
-        const matchesSearch = `${p.name} ${p.category} ${p.lane} ${p.location} ${p.specialty}`.toLowerCase().includes(search);
+        const matchesSearch = `${p.name} ${p.category} ${p.lane} ${p.location} ${p.specialty} ${p.available ? "available" : "booked"}`.toLowerCase().includes(search);
         const matchesCategory = category === "All" || p.category === category || p.lane === category;
         const matchesLocation = location === "All" || p.location === location;
         const matchesPrice = price === "All" || p.price === price;
         return matchesSearch && matchesCategory && matchesLocation && matchesPrice;
       });
-
       document.getElementById("profile-grid").innerHTML = filtered.length ? filtered.map(createProfileCard).join("") : `<div class="card info-box"><h2>No creators found yet</h2><p>Try a different category, location, or search term.</p></div>`;
     }
 
+    function renderMarketplace() {
+      const search = document.getElementById("productSearch")?.value.toLowerCase() || "";
+      const type = document.getElementById("productTypeFilter")?.value || "All";
+      const price = document.getElementById("productPriceFilter")?.value || "All";
+      const lane = document.getElementById("productCategoryFilter")?.value || "All";
+      const filtered = products.filter(p => {
+        const matchesSearch = `${p.name} ${p.creator} ${p.type} ${p.lane} ${p.description}`.toLowerCase().includes(search);
+        const matchesType = type === "All" || p.type === type;
+        const matchesLane = lane === "All" || p.lane === lane;
+        const matchesPrice = price === "All" || (price === "under20" && p.price < 20) || (price === "20to50" && p.price >= 20 && p.price <= 50) || (price === "over50" && p.price > 50);
+        return matchesSearch && matchesType && matchesLane && matchesPrice;
+      });
+      document.getElementById("marketplace-grid").innerHTML = filtered.length ? filtered.map(createProductCard).join("") : `<div class="card info-box"><h2>No products found yet</h2><p>Try a different product type, price, or search term.</p></div>`;
+    }
+
     function quickFilter(value) {
-      if (value === "Available Now") {
-        document.getElementById("searchInput").value = "available";
-      } else {
-        document.getElementById("searchInput").value = value;
-      }
+      document.getElementById("searchInput").value = value === "Available Now" ? "available" : value;
       renderProfiles();
     }
 
@@ -518,6 +648,7 @@
     renderHome();
     renderCategories();
     renderProfiles();
+    renderMarketplace();
     renderCollabs();
     renderSpotlight();
     openDetail(creations[0]);
