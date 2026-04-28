@@ -134,12 +134,14 @@
         <button class="nav-btn" onclick="showPage('explore')">Explore</button>
         <button class="nav-btn" onclick="showPage('categories')">Categories</button>
         <button class="nav-btn" onclick="showPage('marketplace')">Marketplace</button>
+        <button class="nav-btn" onclick="showPage('services')">Services</button>
         <button class="nav-btn" onclick="showPage('community')">Community</button>
         <button class="nav-btn" onclick="showPage('messages')">Messages</button>
         <button class="nav-btn" onclick="showPage('groups')">Groups</button>
         <button class="nav-btn" onclick="showPage('collab')">Collab</button>
         <button class="nav-btn" onclick="showPage('spotlight')">Spotlight</button>
         <button class="nav-btn" onclick="showPage('about')">About</button>
+        <button class="nav-btn" onclick="showPage('join')">Join</button>
         <button class="nav-btn" onclick="showPage('dashboard')">Dashboard</button>
       </nav>
       <div class="header-actions">
@@ -154,9 +156,9 @@
     <section id="home" class="page active">
       <div class="container hero">
         <div>
-          <span class="badge">Instagram + LinkedIn + Fiverr + Gumroad for creatives</span>
-          <h2>Find talent. Show your work. Sell what you create.</h2>
-          <p>WeAllCreate is a discovery platform for every type of creator: artists, photographers, videographers, musicians, barbers, designers, mechanics, chefs, educators, entrepreneurs, and more.</p>
+          <span class="badge">Beta Preview · Built for creators, clients, and businesses</span>
+          <h2>Find creators. Hire services. Buy digital products. Join creative communities.</h2>
+          <p>WeAllCreate is a creative ecosystem where people can discover local talent, book services, sell digital products, collaborate on projects, and build community across every creative lane.</p>
           <div class="button-row">
             <button class="primary-btn" onclick="showPage('explore')">Explore Creators</button>
             <button class="secondary-btn" onclick="showPage('marketplace')">Shop Marketplace</button>
@@ -169,6 +171,28 @@
       </div>
 
       <div class="container">
+        <div class="card marketplace-hero">
+          <span class="badge">How It Works</span>
+          <h2>One platform for discovery, money, and community.</h2>
+          <div class="category-directory" style="margin-top:22px;">
+            <div class="card category-group">
+              <div class="category-icon">🔎</div>
+              <h2>Discover Creators</h2>
+              <p class="muted">Browse creatives by category, location, price, availability, work samples, and reviews.</p>
+            </div>
+            <div class="card category-group">
+              <div class="category-icon">🤝</div>
+              <h2>Book or Collaborate</h2>
+              <p class="muted">Message creators, request services, apply to collabs, or build projects with people in your area.</p>
+            </div>
+            <div class="card category-group">
+              <div class="category-icon">💰</div>
+              <h2>Sell Products</h2>
+              <p class="muted">Creators can sell presets, guides, templates, beats, courses, and other digital resources.</p>
+            </div>
+          </div>
+        </div>
+
         <h2 class="section-heading">Top Creative Lanes</h2>
         <p class="section-note">Start broad, then filter down by exact service, location, price, and availability.</p>
         <div class="category-home-grid" id="home-categories"></div>
@@ -324,6 +348,56 @@
       </div>
     </section>
 
+    <section id="services" class="page">
+      <div class="container">
+        <h1 class="page-title">Services & Pricing</h1>
+        <p class="page-subtitle">Creators can list clear service packages so clients know what they can book before messaging.</p>
+        <div class="profile-grid" id="services-grid"></div>
+      </div>
+    </section>
+
+    <section id="join" class="page">
+      <div class="container">
+        <h1 class="page-title">Join WeAllCreate</h1>
+        <p class="page-subtitle">Choose how you want to use the platform. This is a beta preview, so these sign-up options are placeholders for now.</p>
+        <div class="category-directory">
+          <div class="card category-group">
+            <div class="category-icon">🎨</div>
+            <h2>Join as a Creator</h2>
+            <p class="muted">Create a profile, upload your work, list services, sell products, join groups, and receive booking requests.</p><br>
+            <button class="mini-btn primary" onclick="showPage('dashboard')">Start Creator Profile</button>
+          </div>
+          <div class="card category-group">
+            <div class="category-icon">🛒</div>
+            <h2>Join as a Client</h2>
+            <p class="muted">Find creatives, book services, buy digital products, leave reviews, and message creators directly.</p><br>
+            <button class="mini-btn primary" onclick="showPage('explore')">Find Creators</button>
+          </div>
+          <div class="card category-group">
+            <div class="category-icon">🏢</div>
+            <h2>Join as a Business</h2>
+            <p class="muted">Hire local creatives for campaigns, events, content, branding, media, and recurring business needs.</p><br>
+            <button class="mini-btn primary" onclick="showPage('booking')">Request Talent</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="trust" class="page">
+      <div class="container">
+        <h1 class="page-title">Trust & Safety</h1>
+        <p class="page-subtitle">A community platform needs trust. These systems help keep creators, clients, and buyers protected.</p>
+        <div class="category-directory">
+          <div class="card category-group"><div class="category-icon">✅</div><h2>Verified Creators</h2><p class="muted">Creators can earn badges after identity, portfolio, or service verification.</p></div>
+          <div class="card category-group"><div class="category-icon">⭐</div><h2>Reviews & Ratings</h2><p class="muted">Clients and buyers can leave feedback after bookings or product purchases.</p></div>
+          <div class="card category-group"><div class="category-icon">🚩</div><h2>Report System</h2><p class="muted">Users should be able to report scams, spam, unsafe behavior, stolen work, or fake profiles.</p></div>
+          <div class="card category-group"><div class="category-icon">📜</div><h2>Community Guidelines</h2><p class="muted">Clear rules help keep the platform professional, respectful, and useful.</p></div>
+          <div class="card category-group"><div class="category-icon">🔒</div><h2>Secure Transactions</h2><p class="muted">Future payments should run through trusted systems like Stripe or PayPal.</p></div>
+          <div class="card category-group"><div class="category-icon">🧾</div><h2>Booking Records</h2><p class="muted">Bookings, messages, and purchases should have history so both sides can track agreements.</p></div>
+        </div>
+      </div>
+    </section>
+
     <section id="detail" class="page">
       <div class="container detail-layout">
         <section>
@@ -352,6 +426,8 @@
             <h2 id="detail-card-creator">Chance Visuals</h2>
             <p>Creative profile card with location, specialty, links, and booking button.</p>
             <button class="primary-btn" onclick="openBookingFromDetail()">Hire Me</button>
+            <button class="secondary-btn" onclick="showPage('services')" style="margin-top:10px;">View Services</button>
+            <button class="secondary-btn" onclick="showPage('trust')" style="margin-top:10px;">Trust & Safety</button>
           </div>
           <div class="card info-box">
             <h3>Related Work</h3>
@@ -589,6 +665,10 @@
         <div class="card info-box"><h2>How It Works</h2><p>Create a profile, upload work, browse categories, post collaboration requests, list marketplace products, and connect with creators in your area.</p></div>
         <div class="card info-box"><h2>Business Model</h2><p>Future revenue can come from featured profiles, booking fees, creator verification, premium portfolios, product sales, marketplace commissions, and business accounts.</p></div>
         <div class="card info-box"><h2>FAQ / Contact</h2><p>This area can later include support, contact forms, pricing, verification, and account details.</p></div>
+        <div class="card info-box">
+          <h2>More Ideas to Add Later</h2>
+          <div id="extra-suggestions"></div>
+        </div>
       </div>
     </section>
   </main>
@@ -685,6 +765,26 @@
       { name: "Chance Visuals", rating: "★★★★★", text: "Professional, creative, and easy to work with. The visuals came out clean." },
       { name: "Nova Sound", rating: "★★★★★", text: "The guide helped me understand how to plan my rollout better." },
       { name: "Elite Cuts", rating: "★★★★☆", text: "Great service and the content looked good for my brand page." }
+    ];
+
+    const services = [
+      { title: "Portrait Photoshoot", creator: "Chance Visuals", price: "$125+", category: "Photography", description: "Outdoor or studio-style portraits with edited final images." },
+      { title: "Music Video Package", creator: "Chance Visuals", price: "$250+", category: "Video", description: "Performance video, simple creative direction, and edited final cut." },
+      { title: "Logo Design", creator: "Mia Creates", price: "$75+", category: "Design", description: "Custom logo concepts for brands, creators, and small businesses." },
+      { title: "Beat Pack / Custom Beat", creator: "Nova Sound", price: "$50+", category: "Music", description: "Beat licensing, custom production, and artist sound development." },
+      { title: "Barber Content Shoot", creator: "Elite Cuts", price: "$100+", category: "Beauty", description: "Short-form transformation reels and photo content for barber brands." },
+      { title: "Website Landing Page", creator: "BuildMode Dev", price: "$300+", category: "Web Design", description: "One-page website for creators, brands, campaigns, or businesses." }
+    ];
+
+    const extraSuggestions = [
+      "Add a beta waitlist so people can sign up before the full launch.",
+      "Add featured city pages like Atlanta Creatives, Decatur Creatives, and Griffin Creatives.",
+      "Add a creator verification badge to make profiles feel trustworthy.",
+      "Add a saved/favorites feature so users can save creators, posts, and products.",
+      "Add a report button for fake profiles, stolen work, spam, or unsafe behavior.",
+      "Add a featured business section for brands looking to hire multiple creators.",
+      "Add an events section for pop-ups, shoots, networking events, and creative meetups.",
+      "Add creator analytics later so users can track profile views, product clicks, and bookings."
     ];
 
     const notifications = [
@@ -903,6 +1003,23 @@
         </div>`).join("");
     }
 
+    function renderServices() {
+      const grid = document.getElementById("services-grid");
+      if (!grid) return;
+      grid.innerHTML = services.map(service => `
+        <div class="card creator-card">
+          <span class="tag">${service.category}</span>
+          <h2 style="margin-top:14px;">${service.title}</h2>
+          <p class="muted">by ${service.creator}</p>
+          <div class="price">${service.price}</div>
+          <p>${service.description}</p>
+          <div class="card-actions">
+            <button class="mini-btn primary" onclick="openBooking('${service.creator}')">Book Service</button>
+            <button class="mini-btn" onclick="openProfile('${service.creator}')">View Creator</button>
+          </div>
+        </div>`).join("");
+    }
+
     function renderSpotlight() {
       document.getElementById("spotlight-grid").innerHTML = profiles.slice(1,4).map(createProfileCard).join("");
     }
@@ -995,7 +1112,15 @@
       renderMessages();
       renderGroups();
       renderReviews();
+      renderServices();
       renderSpotlight();
+      renderSuggestions();
+    }
+
+    function renderSuggestions() {
+      const box = document.getElementById('extra-suggestions');
+      if (!box) return;
+      box.innerHTML = extraSuggestions.map(item => `<p style="border-bottom:1px solid rgba(255,255,255,.1); padding:10px 0;">${item}</p>`).join('');
     }
 
     renderHome();
@@ -1007,6 +1132,8 @@
     renderMessages();
     renderGroups();
     renderReviews();
+    renderServices();
+    renderSuggestions();
     renderSpotlight();
     openDetail(creations[0]);
     showPage("home");
