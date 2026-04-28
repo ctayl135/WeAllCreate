@@ -134,6 +134,9 @@
         <button class="nav-btn" onclick="showPage('explore')">Explore</button>
         <button class="nav-btn" onclick="showPage('categories')">Categories</button>
         <button class="nav-btn" onclick="showPage('marketplace')">Marketplace</button>
+        <button class="nav-btn" onclick="showPage('community')">Community</button>
+        <button class="nav-btn" onclick="showPage('messages')">Messages</button>
+        <button class="nav-btn" onclick="showPage('groups')">Groups</button>
         <button class="nav-btn" onclick="showPage('collab')">Collab</button>
         <button class="nav-btn" onclick="showPage('spotlight')">Spotlight</button>
         <button class="nav-btn" onclick="showPage('about')">About</button>
@@ -373,15 +376,92 @@
       </div>
     </section>
 
+    <section id="community" class="page">
+      <div class="container">
+        <h1 class="page-title">Creative Community</h1>
+        <p class="page-subtitle">A public feed where creators can talk, post updates, ask for feedback, find help, and stay active inside the WeAllCreate network.</p>
+
+        <div class="card upload-form" style="max-width: 100%; margin-bottom: 28px;">
+          <h2>Start a public conversation</h2>
+          <textarea placeholder="Share an idea, ask for feedback, post an opportunity, or talk to the creative community..."></textarea>
+          <div class="card-actions">
+            <button type="button" class="mini-btn primary">Post to Feed</button>
+            <button type="button" class="mini-btn">Add Image</button>
+            <button type="button" class="mini-btn">Tag Creators</button>
+          </div>
+        </div>
+
+        <div class="feed-layout">
+          <section id="community-feed"></section>
+          <aside>
+            <div class="card info-box">
+              <h2>Hot This Week</h2>
+              <p>Most active creators, popular posts, and trending collab requests will show here.</p>
+            </div>
+            <div class="card info-box">
+              <h2>Notifications</h2>
+              <div id="notification-list"></div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section id="messages" class="page">
+      <div class="container">
+        <h1 class="page-title">Messages</h1>
+        <p class="page-subtitle">Private conversations for bookings, collaborations, product questions, and networking.</p>
+        <div class="collab-layout">
+          <div class="card info-box">
+            <h2>Inbox</h2>
+            <div id="message-list"></div>
+          </div>
+          <div class="card info-box">
+            <span class="badge">Private Chat</span>
+            <h2 id="chat-title">Chance Visuals</h2>
+            <div id="chat-window" style="display:grid; gap:12px; margin:20px 0;"></div>
+            <input type="text" placeholder="Type your message...">
+            <button class="upload-btn" style="width:100%; padding:14px; border-radius:999px; font-weight:800;">Send Message</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="groups" class="page">
+      <div class="container">
+        <h1 class="page-title">Creative Groups</h1>
+        <p class="page-subtitle">Community spaces for creators to learn, connect, post opportunities, and build relationships by niche or location.</p>
+        <div class="category-directory" id="group-grid"></div>
+      </div>
+    </section>
+
+    <section id="reviews" class="page">
+      <div class="container">
+        <h1 class="page-title">Reviews & Trust</h1>
+        <p class="page-subtitle">Reviews help people know who is reliable, professional, and worth booking or buying from.</p>
+        <div class="card upload-form" style="max-width: 100%; margin-bottom: 28px;">
+          <h2>Leave a Review</h2>
+          <input type="text" placeholder="Creator or product name">
+          <select>
+            <option>Rating</option><option>5 Stars</option><option>4 Stars</option><option>3 Stars</option><option>2 Stars</option><option>1 Star</option>
+          </select>
+          <textarea placeholder="Write your review..."></textarea>
+          <button type="button" class="mini-btn primary">Submit Review</button>
+        </div>
+        <div class="profile-grid" id="reviews-grid"></div>
+      </div>
+    </section>
+
     <section id="collab" class="page">
       <div class="container">
         <h1 class="page-title">Collaboration Hub</h1>
-        <p class="page-subtitle">Post a request or find people to build with.</p>
+        <p class="page-subtitle">Post a request, apply to join projects, and track collabs from open to completed.</p>
         <div class="collab-layout">
           <form class="card upload-form">
             <h2>Post Collaboration Request</h2>
             <input type="text" placeholder="What do you need?">
             <textarea placeholder="Add details"></textarea>
+            <select><option>Status: Open</option><option>In Progress</option><option>Completed</option></select>
             <button type="button" class="primary-btn" style="width:100%;">Post Request</button>
           </form>
           <div id="collab-feed"></div>
@@ -399,6 +479,7 @@
             <h2>Chance Visuals</h2>
             <p>A visual storyteller building a lane through photography, videography, music video work, and creative direction.</p>
             <br><button class="primary-btn" onclick="openBooking('Chance Visuals')">Book Creator</button>
+            <button class="secondary-btn" onclick="showPage('reviews')" style="margin-left:10px;">View Reviews</button>
           </div>
         </div>
         <br><br>
@@ -484,12 +565,47 @@
     }));
 
     const collabs = [
-      "Looking for a videographer for a music video in Atlanta",
-      "Photographer needed for a streetwear brand shoot",
-      "Producer looking for artists to build a 3-song EP",
-      "Barber seeking content creator for weekly transformation reels",
-      "Chef looking for a food photographer for a pop-up menu launch",
-      "Web designer needed for a personal brand portfolio"
+      { title: "Looking for a videographer for a music video in Atlanta", status: "Open", tag: "Video" },
+      { title: "Photographer needed for a streetwear brand shoot", status: "Open", tag: "Photography" },
+      { title: "Producer looking for artists to build a 3-song EP", status: "In Progress", tag: "Music" },
+      { title: "Barber seeking content creator for weekly transformation reels", status: "Open", tag: "Beauty" },
+      { title: "Chef looking for a food photographer for a pop-up menu launch", status: "Completed", tag: "Food" },
+      { title: "Web designer needed for a personal brand portfolio", status: "Open", tag: "Web" }
+    ];
+
+    const communityPosts = [
+      { author: "Chance Visuals", tag: "Feedback", text: "Working on a new night photography preset pack. What type of look do y’all like more: clean cinematic or heavy vintage?", stats: "42 likes · 18 comments" },
+      { author: "Nova Sound", tag: "Opportunity", text: "Looking for 2 artists in Atlanta who need studio recap content for their next rollout.", stats: "61 likes · 24 comments" },
+      { author: "Mia Creates", tag: "Design Talk", text: "Branding tip: your visuals should tell people what you do before they even read your bio.", stats: "88 likes · 31 comments" },
+      { author: "Elite Cuts", tag: "Growth", text: "Barbers, start filming transformations. People trust what they can see.", stats: "73 likes · 15 comments" }
+    ];
+
+    const messages = [
+      { name: "Chance Visuals", preview: "I can shoot that this weekend. What location were you thinking?" },
+      { name: "Mia Creates", preview: "Send over the logo ideas and I’ll mock up a direction." },
+      { name: "Nova Sound", preview: "The beat pack is ready. I can send the link after checkout." }
+    ];
+
+    const groups = [
+      { name: "Atlanta Creatives", icon: "🌆", description: "For photographers, artists, models, barbers, musicians, and creators building in Atlanta." },
+      { name: "Photographers Only", icon: "📷", description: "Talk gear, editing, locations, presets, bookings, and portfolio growth." },
+      { name: "Music Producers", icon: "🎹", description: "Share beats, find artists, trade feedback, and build placements." },
+      { name: "Barbers & Beauty Creators", icon: "💈", description: "Content ideas, client growth, transformation videos, and booking tips." },
+      { name: "Design & Branding", icon: "🎨", description: "Logos, flyers, websites, UI/UX, brand identity, and creative feedback." },
+      { name: "Business Builders", icon: "📈", description: "Pricing, marketing, contracts, digital products, sales, and scaling." }
+    ];
+
+    const reviews = [
+      { name: "Chance Visuals", rating: "★★★★★", text: "Professional, creative, and easy to work with. The visuals came out clean." },
+      { name: "Nova Sound", rating: "★★★★★", text: "The guide helped me understand how to plan my rollout better." },
+      { name: "Elite Cuts", rating: "★★★★☆", text: "Great service and the content looked good for my brand page." }
+    ];
+
+    const notifications = [
+      "Nova Sound replied to your collab request",
+      "Someone viewed your marketplace product",
+      "Mia Creates commented on your post",
+      "New review received on your profile"
     ];
 
     function showPage(pageId) {
@@ -638,7 +754,67 @@
     }
 
     function renderCollabs() {
-      document.getElementById("collab-feed").innerHTML = collabs.map(item => `<div class="card collab-request"><h3>${item}</h3><p>Open request · Message creator to connect</p><br><button class="mini-btn primary">Respond</button></div>`).join("");
+      document.getElementById("collab-feed").innerHTML = collabs.map(item => `
+        <div class="card collab-request">
+          <div class="tag-row"><span class="tag">${item.tag}</span><span class="creator-name">${item.status}</span></div>
+          <h3>${item.title}</h3>
+          <p>Message creator, apply to collaborate, or follow the project status.</p><br>
+          <button class="mini-btn primary">Apply to Collab</button>
+          <button class="mini-btn" onclick="showPage('messages')">Message</button>
+        </div>`).join("");
+    }
+
+    function renderCommunity() {
+      document.getElementById("community-feed").innerHTML = communityPosts.map(post => `
+        <div class="card info-box">
+          <div class="tag-row"><span class="tag">${post.tag}</span><span class="creator-name">${post.author}</span></div>
+          <p>${post.text}</p>
+          <div class="stats">${post.stats}</div>
+          <div class="card-actions">
+            <button class="mini-btn">Like</button>
+            <button class="mini-btn">Comment</button>
+            <button class="mini-btn primary" onclick="showPage('messages')">Message</button>
+          </div>
+        </div>`).join("");
+
+      document.getElementById("notification-list").innerHTML = notifications.map(note => `<p style="border-bottom:1px solid rgba(255,255,255,.1); padding:10px 0;">${note}</p>`).join("");
+    }
+
+    function renderMessages() {
+      document.getElementById("message-list").innerHTML = messages.map(msg => `
+        <button class="creator-list-item" style="width:100%; background:transparent; color:white; text-align:left;" onclick="openChat('${msg.name}')">
+          <div class="avatar">${msg.name[0]}</div><div><strong>${msg.name}</strong><br><span class="creator-name">${msg.preview}</span></div>
+        </button>`).join("");
+      openChat("Chance Visuals");
+    }
+
+    function openChat(name) {
+      document.getElementById("chat-title").textContent = name;
+      document.getElementById("chat-window").innerHTML = `
+        <div class="card info-box" style="margin:0;"><p><strong>${name}:</strong> Appreciate you reaching out. What are you trying to create?</p></div>
+        <div class="card info-box" style="margin:0; background:rgba(139,92,246,.14);"><p><strong>You:</strong> I’m interested in booking and possibly collaborating.</p></div>
+        <div class="card info-box" style="margin:0;"><p><strong>${name}:</strong> Bet, send me the details and budget range.</p></div>`;
+    }
+
+    function renderGroups() {
+      document.getElementById("group-grid").innerHTML = groups.map(group => `
+        <div class="card category-group">
+          <div class="category-icon">${group.icon}</div>
+          <h2>${group.name}</h2>
+          <p class="muted">${group.description}</p><br>
+          <button class="mini-btn primary">Join Group</button>
+          <button class="mini-btn" onclick="showPage('community')">View Posts</button>
+        </div>`).join("");
+    }
+
+    function renderReviews() {
+      document.getElementById("reviews-grid").innerHTML = reviews.map(review => `
+        <div class="card creator-card">
+          <div class="avatar">${review.name[0]}</div>
+          <h3>${review.name}</h3>
+          <div class="price">${review.rating}</div>
+          <p>${review.text}</p>
+        </div>`).join("");
     }
 
     function renderSpotlight() {
@@ -650,6 +826,10 @@
     renderProfiles();
     renderMarketplace();
     renderCollabs();
+    renderCommunity();
+    renderMessages();
+    renderGroups();
+    renderReviews();
     renderSpotlight();
     openDetail(creations[0]);
     showPage("home");
