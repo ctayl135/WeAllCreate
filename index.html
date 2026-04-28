@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WeAllCreate</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, Helvetica, sans-serif; background: #09090b; color: #fff; line-height: 1.6; }
+    button, input, textarea, select { font-family: inherit; }
+    button { cursor: pointer; border: none; }
+    img { max-width: 100%; display: block; }
+    .container { width: min(1200px, 92%); margin: 0 auto; }
+
+    header { position: sticky; top: 0; z-index: 100; background: rgba(9,9,11,.92); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(255,255,255,.1); }
+    .navbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 18px 0; }
+    .logo { background: transparent; color: #fff; text-align: left; }
+    .logo h1 { font-size: 1.45rem; line-height: 1; letter-spacing: -1px; }
+    .logo span { color: #a1a1aa; font-size: .76rem; }
+    nav { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    nav button, .header-actions button, .primary-btn, .secondary-btn { padding: 10px 16px; border-radius: 999px; font-weight: 800; transition: .2s ease; }
+    nav button { color: #d4d4d8; background: transparent; }
+    nav button:hover, nav button.active { background: #fff; color: #09090b; }
+    .header-actions { display: flex; align-items: center; gap: 10px; }
+    .search-pill { padding: 10px 14px; border-radius: 999px; background: rgba(255,255,255,.08); color: #d4d4d8; font-size: .9rem; }
+    .upload-btn { background: #8b5cf6; color: #fff; }
+    .login-btn { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.14); }
+
+    .page { display: none; padding: 52px 0; }
+    .page.active { display: block; }
+    .hero { display: grid; grid-template-columns: 1.15fr .85fr; gap: 42px; align-items: center; min-height: 610px; }
+    .badge { display: inline-block; margin-bottom: 18px; padding: 9px 14px; border-radius: 999px; color: #ddd6fe; background: rgba(139,92,246,.15); border: 1px solid rgba(139,92,246,.35); font-size: .9rem; }
+    .hero h2, .page-title { font-size: clamp(2.4rem, 7vw, 5.2rem); line-height: .95; letter-spacing: -.055em; margin-bottom: 24px; }
+    .hero p, .page-subtitle { color: #d4d4d8; max-width: 720px; font-size: 1.08rem; margin-bottom: 30px; }
+    .button-row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .primary-btn { background: #fff; color: #09090b; }
+    .secondary-btn { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.18); }
+    .hero-image-card { padding: 18px; border-radius: 34px; background: linear-gradient(135deg, rgba(139,92,246,.25), rgba(34,211,238,.1)); border: 1px solid rgba(255,255,255,.1); }
+    .hero-image-card img { width: 100%; height: 430px; object-fit: cover; border-radius: 26px; }
+
+    .section-heading { font-size: 2rem; margin-bottom: 8px; letter-spacing: -1px; }
+    .section-note { color: #a1a1aa; margin-bottom: 24px; }
+    .card { background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.1); border-radius: 28px; overflow: hidden; }
+    .card:hover { background: rgba(255,255,255,.065); }
+
+    .category-home-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 50px; }
+    .category-card { padding: 24px; text-align: left; color: #fff; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.1); border-radius: 28px; transition: .2s ease; }
+    .category-card:hover { transform: translateY(-3px); background: rgba(255,255,255,.085); }
+    .category-icon { font-size: 1.8rem; margin-bottom: 12px; }
+    .category-card span { display: block; color: #71717a; font-size: .85rem; }
+
+    .feed-layout { display: grid; grid-template-columns: 1fr 320px; gap: 28px; align-items: start; }
+    .creation-grid, .profile-grid, .creator-grid, .category-directory { display: grid; gap: 20px; }
+    .creation-grid { grid-template-columns: repeat(2, 1fr); }
+    .profile-grid { grid-template-columns: repeat(3, 1fr); }
+    .creator-grid { grid-template-columns: repeat(3, 1fr); }
+
+    .creation-card, .profile-card { text-align: left; color: #fff; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.1); border-radius: 28px; overflow: hidden; transition: .2s ease; width: 100%; }
+    .creation-card:hover, .profile-card:hover { transform: translateY(-3px); background: rgba(255,255,255,.08); }
+    .creation-card img, .profile-card img { width: 100%; height: 230px; object-fit: cover; }
+    .creation-content, .profile-content { padding: 22px; }
+    .tag-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 12px; }
+    .tag { background: rgba(139,92,246,.16); color: #ddd6fe; padding: 5px 10px; border-radius: 999px; font-size: .75rem; font-weight: 800; }
+    .creator-name, .muted { color: #a1a1aa; font-size: .9rem; }
+    .creation-content h3, .profile-content h3 { font-size: 1.2rem; margin-bottom: 8px; }
+    .creation-content p, .profile-content p { color: #a1a1aa; font-size: .92rem; margin-bottom: 14px; }
+    .stats { color: #a1a1aa; font-size: .9rem; margin-bottom: 14px; }
+    .card-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .mini-btn { padding: 9px 13px; border-radius: 999px; font-weight: 800; background: rgba(255,255,255,.1); color: white; }
+    .mini-btn.primary { background: #8b5cf6; }
+
+    aside .card { padding: 22px; margin-bottom: 20px; }
+    .creator-list-item { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .creator-list-item:last-child { border-bottom: 0; }
+    .avatar { width: 44px; height: 44px; border-radius: 50%; background: rgba(139,92,246,.2); display: grid; place-items: center; color: #ddd6fe; font-weight: 900; }
+    .cta-card { background: #8b5cf6 !important; color: white; }
+
+    .filter-panel { display: grid; grid-template-columns: 1.2fr repeat(3, 1fr); gap: 12px; margin: 28px 0; }
+    .filter-panel input, .filter-panel select { width: 100%; border: 1px solid rgba(255,255,255,.1); background: #18181b; color: #fff; padding: 14px 16px; border-radius: 18px; outline: none; }
+    .filter-row { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0 28px; }
+    .filter-row button { border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.045); color: #fff; padding: 10px 15px; border-radius: 999px; }
+
+    .category-directory { grid-template-columns: repeat(3, 1fr); }
+    .category-group { padding: 24px; }
+    .category-group h2 { margin-bottom: 12px; }
+    .subcategory-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .subcategory-list span { background: rgba(255,255,255,.08); color: #d4d4d8; padding: 7px 10px; border-radius: 999px; font-size: .86rem; }
+
+    .detail-layout, .collab-layout, .spotlight-card { display: grid; grid-template-columns: 1fr 340px; gap: 30px; align-items: start; }
+    .detail-main-image { width: 100%; height: 520px; object-fit: cover; border-radius: 30px; margin: 28px 0; }
+    .info-box { padding: 24px; margin-bottom: 20px; }
+    .info-box p { color: #d4d4d8; margin-top: 10px; }
+    .upload-form { max-width: 760px; padding: 26px; }
+    .upload-drop { min-height: 170px; display: grid; place-items: center; border: 1px dashed rgba(255,255,255,.22); border-radius: 24px; color: #a1a1aa; margin: 8px 0 16px; }
+    input, textarea { width: 100%; border: 1px solid rgba(255,255,255,.1); background: #18181b; color: #fff; padding: 14px 16px; border-radius: 18px; margin-bottom: 14px; outline: none; }
+    textarea { min-height: 140px; resize: vertical; }
+    .collab-layout { grid-template-columns: 360px 1fr; }
+    .collab-request { padding: 22px; margin-bottom: 15px; }
+    .spotlight-card { grid-template-columns: 360px 1fr; padding: 24px; margin-top: 28px; }
+    .spotlight-card img { width: 100%; height: 340px; object-fit: cover; border-radius: 26px; }
+    .spotlight-card h2 { font-size: 3rem; line-height: 1; margin: 12px 0; }
+    .creator-card { padding: 24px; transition: .2s ease; }
+    .booking-banner { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; padding: 24px; margin: 28px 0; background: linear-gradient(135deg, rgba(139,92,246,.22), rgba(255,255,255,.04)); }
+
+    footer { border-top: 1px solid rgba(255,255,255,.1); text-align: center; color: #71717a; padding: 30px 0; margin-top: 40px; }
+
+    @media (max-width: 1000px) {
+      .navbar { flex-direction: column; }
+      .header-actions { flex-wrap: wrap; justify-content: center; }
+      .hero, .feed-layout, .detail-layout, .collab-layout, .spotlight-card, .booking-banner { grid-template-columns: 1fr; }
+      .category-home-grid { grid-template-columns: repeat(2, 1fr); }
+      .creation-grid, .profile-grid, .creator-grid, .category-directory { grid-template-columns: 1fr; }
+      .filter-panel { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      nav { display: grid; grid-template-columns: repeat(2, 1fr); width: 100%; }
+      nav button { width: 100%; }
+      .category-home-grid { grid-template-columns: 1fr; }
+      .hero-image-card img, .detail-main-image { height: 320px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container navbar">
+      <button class="logo" onclick="showPage('home')">
+        <h1>WeAllCreate</h1>
+        <span>Creatives meet opportunity</span>
+      </button>
+      <nav>
+        <button class="nav-btn active" onclick="showPage('home')">Home</button>
+        <button class="nav-btn" onclick="showPage('explore')">Explore</button>
+        <button class="nav-btn" onclick="showPage('categories')">Categories</button>
+        <button class="nav-btn" onclick="showPage('collab')">Collab</button>
+        <button class="nav-btn" onclick="showPage('spotlight')">Spotlight</button>
+        <button class="nav-btn" onclick="showPage('about')">About</button>
+      </nav>
+      <div class="header-actions">
+        <div class="search-pill">Search</div>
+        <button class="upload-btn" onclick="showPage('upload')">Upload</button>
+        <button class="login-btn">Login</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="home" class="page active">
+      <div class="container hero">
+        <div>
+          <span class="badge">Instagram + LinkedIn + Fiverr for creatives</span>
+          <h2>Find talent. Show your work. Build with other creatives.</h2>
+          <p>WeAllCreate is a discovery platform for every type of creator: artists, photographers, videographers, musicians, barbers, designers, mechanics, chefs, educators, entrepreneurs, and more.</p>
+          <div class="button-row">
+            <button class="primary-btn" onclick="showPage('explore')">Explore Creators</button>
+            <button class="secondary-btn" onclick="showPage('upload')">Upload Your Work</button>
+          </div>
+        </div>
+        <div class="hero-image-card">
+          <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1000&q=80" alt="Creative event">
+        </div>
+      </div>
+
+      <div class="container">
+        <h2 class="section-heading">Top Creative Lanes</h2>
+        <p class="section-note">Start broad, then filter down by exact service, location, price, and availability.</p>
+        <div class="category-home-grid" id="home-categories"></div>
+      </div>
+
+      <div class="container feed-layout">
+        <section>
+          <h2 class="section-heading">Featured Work</h2>
+          <div class="creation-grid" id="home-feed"></div>
+        </section>
+        <aside>
+          <div class="card">
+            <h3>Trending Creators</h3>
+            <div id="trending-creators"></div>
+          </div>
+          <div class="card cta-card">
+            <h3>Ready to be seen?</h3>
+            <p>Post your work, describe your services, and start building your creative network.</p><br>
+            <button class="primary-btn" onclick="showPage('upload')">Post Now</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="explore" class="page">
+      <div class="container">
+        <h1 class="page-title">Explore Creators</h1>
+        <p class="page-subtitle">Search, filter, hire, and connect with creators across every lane.</p>
+
+        <div class="filter-panel">
+          <input id="searchInput" type="text" placeholder="Search creators, services, or keywords" oninput="renderProfiles()">
+          <select id="categoryFilter" onchange="renderProfiles()"></select>
+          <select id="locationFilter" onchange="renderProfiles()">
+            <option value="All">All Locations</option>
+            <option>Atlanta</option><option>Decatur</option><option>Griffin</option><option>Remote</option>
+          </select>
+          <select id="priceFilter" onchange="renderProfiles()">
+            <option value="All">All Prices</option>
+            <option value="budget">Budget Friendly</option>
+            <option value="mid">Mid Range</option>
+            <option value="premium">Premium</option>
+          </select>
+        </div>
+
+        <div class="filter-row">
+          <button onclick="quickFilter('Available Now')">Available Now</button>
+          <button onclick="quickFilter('Photography')">Photography</button>
+          <button onclick="quickFilter('Music')">Music</button>
+          <button onclick="quickFilter('Design')">Design</button>
+          <button onclick="quickFilter('Business')">Business</button>
+          <button onclick="clearFilters()">Clear Filters</button>
+        </div>
+
+        <div class="profile-grid" id="profile-grid"></div>
+      </div>
+    </section>
+
+    <section id="detail" class="page">
+      <div class="container detail-layout">
+        <section>
+          <h1 class="page-title" id="detail-title">Downtown Night Shoot</h1>
+          <p class="page-subtitle" id="detail-creator">Created by Chance Visuals</p>
+          <img class="detail-main-image" id="detail-image" src="" alt="Creation detail">
+          <div class="card info-box">
+            <h2>Description</h2>
+            <p id="detail-description"></p>
+          </div>
+          <div class="card booking-banner">
+            <div>
+              <h2>Want to work with this creator?</h2>
+              <p>Send a booking request, ask about pricing, or start a collaboration.</p>
+            </div>
+            <button class="primary-btn" onclick="openBookingFromDetail()">Book / Contact</button>
+          </div>
+          <div class="card info-box">
+            <h2>Comments</h2>
+            <p>Comments will go here once the backend is added.</p>
+          </div>
+        </section>
+        <aside>
+          <div class="card info-box">
+            <div class="avatar" id="detail-avatar">C</div>
+            <h2 id="detail-card-creator">Chance Visuals</h2>
+            <p>Creative profile card with location, specialty, links, and booking button.</p>
+            <button class="primary-btn" onclick="openBookingFromDetail()">Hire Me</button>
+          </div>
+          <div class="card info-box">
+            <h3>Related Work</h3>
+            <p>Studio Session Recap</p><p>Fresh Fade Showcase</p><p>Custom Brand Flyer</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="categories" class="page">
+      <div class="container">
+        <h1 class="page-title">Creative Categories</h1>
+        <p class="page-subtitle">A full directory built to make WeAllCreate suitable for everybody.</p>
+        <div class="category-directory" id="category-directory"></div>
+      </div>
+    </section>
+
+    <section id="upload" class="page">
+      <div class="container">
+        <h1 class="page-title">Upload Creation</h1>
+        <p class="page-subtitle">Post work, services, or proof of what you can do.</p>
+        <form class="card upload-form">
+          <label><strong>File</strong></label>
+          <div class="upload-drop">Drop image or video here</div>
+          <input type="text" placeholder="Title">
+          <textarea placeholder="Description"></textarea>
+          <input type="text" placeholder="Tags, separated by commas">
+          <select style="width:100%; margin-bottom:14px;"><option>Select Category</option></select>
+          <button type="button" class="upload-btn" style="width:100%; padding:14px; border-radius:999px; font-weight:800;">Publish</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="collab" class="page">
+      <div class="container">
+        <h1 class="page-title">Collaboration Hub</h1>
+        <p class="page-subtitle">Post a request or find people to build with.</p>
+        <div class="collab-layout">
+          <form class="card upload-form">
+            <h2>Post Collaboration Request</h2>
+            <input type="text" placeholder="What do you need?">
+            <textarea placeholder="Add details"></textarea>
+            <button type="button" class="primary-btn" style="width:100%;">Post Request</button>
+          </form>
+          <div id="collab-feed"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="spotlight" class="page">
+      <div class="container">
+        <h1 class="page-title">Creator Spotlight</h1>
+        <div class="card spotlight-card">
+          <img src="https://images.unsplash.com/photo-1520975682031-a1c3f3a7b3a0?auto=format&fit=crop&w=900&q=80" alt="Featured creator">
+          <div>
+            <span class="badge">Featured Creator of the Week</span>
+            <h2>Chance Visuals</h2>
+            <p>A visual storyteller building a lane through photography, videography, music video work, and creative direction.</p>
+            <br><button class="primary-btn" onclick="openBooking('Chance Visuals')">Book Creator</button>
+          </div>
+        </div>
+        <br><br>
+        <h2 class="section-heading">Top Trending Creators</h2>
+        <div class="creator-grid" id="spotlight-grid"></div>
+      </div>
+    </section>
+
+    <section id="booking" class="page">
+      <div class="container">
+        <h1 class="page-title">Book or Contact</h1>
+        <p class="page-subtitle">This is the starter booking form. Later, you can connect it to email, a database, or a payment system.</p>
+        <form class="card upload-form">
+          <input id="bookingCreator" type="text" placeholder="Creator name">
+          <input type="text" placeholder="Your name">
+          <input type="email" placeholder="Your email">
+          <input type="text" placeholder="Project type">
+          <select>
+            <option>Budget Range</option><option>$50 - $150</option><option>$150 - $500</option><option>$500 - $1,000</option><option>$1,000+</option>
+          </select>
+          <textarea placeholder="Tell the creator what you need"></textarea>
+          <button type="button" class="upload-btn" style="width:100%; padding:14px; border-radius:999px; font-weight:800;">Send Request</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="about" class="page">
+      <div class="container">
+        <h1 class="page-title">About WeAllCreate</h1>
+        <div class="card info-box"><h2>Mission</h2><p>WeAllCreate exists to help local creatives get discovered, build trust, show proof of work, and connect with people who need their talent.</p></div>
+        <div class="card info-box"><h2>How It Works</h2><p>Create a profile, upload work, browse categories, post collaboration requests, and connect with creators in your area.</p></div>
+        <div class="card info-box"><h2>Business Model</h2><p>Future revenue can come from featured profiles, booking fees, creator verification, premium portfolios, and business accounts.</p></div>
+        <div class="card info-box"><h2>FAQ / Contact</h2><p>This area can later include support, contact forms, pricing, verification, and account details.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="container">© 2026 WeAllCreate. Built for creators who want to be seen.</div></footer>
+
+  <script>
+    const categoryGroups = [
+      { group: "Visual Media", icon: "📷", items: ["Photography", "Videography", "Film", "Drone Pilots", "Editors", "Colorists", "Live Streamers", "Photobooth Owners"] },
+      { group: "Music & Audio", icon: "🎵", items: ["Artists", "Producers", "DJs", "Audio Engineers", "Songwriters", "Podcast Hosts", "Voice Actors", "Mixing & Mastering"] },
+      { group: "Design & Tech", icon: "💻", items: ["Graphic Design", "Branding", "UI/UX Design", "Web Design", "App Development", "Game Development", "3D Modeling", "Motion Graphics"] },
+      { group: "Art & Writing", icon: "🎨", items: ["Illustration", "Painting", "Digital Art", "Street Art", "Poets", "Writers", "Authors", "Journalists"] },
+      { group: "Fashion & Beauty", icon: "✨", items: ["Fashion Design", "Stylists", "Models", "Makeup Artists", "Hair Stylists", "Barbers", "Nail Techs", "Tattoo Artists"] },
+      { group: "Business & Content", icon: "📈", items: ["Content Creators", "Influencers", "Social Media Managers", "Marketers", "Entrepreneurs", "E-commerce", "Copywriters", "Brand Strategists"] },
+      { group: "Lifestyle & Events", icon: "🎤", items: ["Event Planners", "Hosts", "Chefs", "Bakers", "Food Creators", "Fitness Trainers", "Coaches", "Travel Creators"] },
+      { group: "Local Services", icon: "🔧", items: ["Mechanics", "Car Detailers", "Car Customizers", "Interior Designers", "Architects", "Real Estate Creators", "Tutors", "Course Creators"] }
+    ];
+
+    const profiles = [
+      { name: "Chance Visuals", category: "Photography", lane: "Visual Media", location: "Atlanta", price: "mid", available: true, specialty: "Cinematic photo and video work for artists, brands, and street visuals.", image: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=80" },
+      { name: "Nova Sound", category: "Music", lane: "Music & Audio", location: "Atlanta", price: "mid", available: true, specialty: "Recording sessions, artist development, hooks, and studio recaps.", image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80" },
+      { name: "Elite Cuts", category: "Barbers", lane: "Fashion & Beauty", location: "Decatur", price: "budget", available: true, specialty: "Clean fades, transformations, and barber content shoots.", image: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=900&q=80" },
+      { name: "Mia Creates", category: "Design", lane: "Design & Tech", location: "Remote", price: "mid", available: false, specialty: "Flyers, brand identity, digital graphics, and launch visuals.", image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=80" },
+      { name: "Chef Ray", category: "Food", lane: "Lifestyle & Events", location: "Atlanta", price: "premium", available: true, specialty: "Private plates, food content, catering visuals, and pop-up events.", image: "https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&w=900&q=80" },
+      { name: "Auto Detail King", category: "Mechanics", lane: "Local Services", location: "Griffin", price: "mid", available: true, specialty: "Car detailing, custom work, before-and-after content, and repair showcases.", image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=80" },
+      { name: "Kali Ink", category: "Tattoo Artists", lane: "Fashion & Beauty", location: "Atlanta", price: "premium", available: false, specialty: "Fine line tattoos, custom artwork, and studio content.", image: "https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?auto=format&fit=crop&w=900&q=80" },
+      { name: "BuildMode Dev", category: "Web Design", lane: "Design & Tech", location: "Remote", price: "premium", available: true, specialty: "Websites, landing pages, portfolios, and startup MVPs.", image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=80" },
+      { name: "Verse Room", category: "Writers", lane: "Art & Writing", location: "Remote", price: "budget", available: true, specialty: "Poetry, captions, artist bios, blog writing, and brand storytelling.", image: "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=80" }
+    ];
+
+    const creations = profiles.slice(0, 4).map((p, i) => ({
+      title: ["Downtown Night Shoot", "Studio Session Recap", "Fresh Fade Showcase", "Custom Brand Flyer"][i],
+      creator: p.name,
+      category: p.category,
+      description: p.specialty,
+      image: p.image,
+      likes: [248, 410, 182, 326][i],
+      comments: [34, 52, 21, 47][i]
+    }));
+
+    const collabs = [
+      "Looking for a videographer for a music video in Atlanta",
+      "Photographer needed for a streetwear brand shoot",
+      "Producer looking for artists to build a 3-song EP",
+      "Barber seeking content creator for weekly transformation reels",
+      "Chef looking for a food photographer for a pop-up menu launch",
+      "Web designer needed for a personal brand portfolio"
+    ];
+
+    function showPage(pageId) {
+      document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+      document.getElementById(pageId).classList.add("active");
+      document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        if (btn.textContent.toLowerCase() === pageId) btn.classList.add("active");
+        if (pageId === "home" && btn.textContent === "Home") btn.classList.add("active");
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function createWorkCard(item) {
+      return `
+        <button class="creation-card" onclick='openDetail(${JSON.stringify(item)})'>
+          <img src="${item.image}" alt="${item.title}">
+          <div class="creation-content">
+            <div class="tag-row"><span class="tag">${item.category}</span><span class="creator-name">by ${item.creator}</span></div>
+            <h3>${item.title}</h3><p>${item.description}</p>
+            <div class="stats">♡ ${item.likes} &nbsp;&nbsp; 💬 ${item.comments}</div>
+          </div>
+        </button>`;
+    }
+
+    function createProfileCard(profile) {
+      return `
+        <div class="profile-card">
+          <img src="${profile.image}" alt="${profile.name}">
+          <div class="profile-content">
+            <div class="tag-row"><span class="tag">${profile.category}</span><span class="creator-name">${profile.location}</span></div>
+            <h3>${profile.name}</h3>
+            <p>${profile.specialty}</p>
+            <div class="stats">${profile.available ? "Available Now" : "Booked"} · ${profile.price === "budget" ? "Budget Friendly" : profile.price === "mid" ? "Mid Range" : "Premium"}</div>
+            <div class="card-actions">
+              <button class="mini-btn primary" onclick="openBooking('${profile.name}')">Hire Me</button>
+              <button class="mini-btn" onclick="openProfile('${profile.name}')">View Profile</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderHome() {
+      const homeCats = categoryGroups.map(group => `
+        <button class="category-card" onclick="showPage('categories')">
+          <div class="category-icon">${group.icon}</div><strong>${group.group}</strong><span>${group.items.slice(0,4).join(", ")}</span>
+        </button>`).join("");
+      document.getElementById("home-categories").innerHTML = homeCats;
+      document.getElementById("home-feed").innerHTML = creations.map(createWorkCard).join("");
+      document.getElementById("trending-creators").innerHTML = profiles.slice(0,4).map(p => `<div class="creator-list-item"><div class="avatar">${p.name[0]}</div><div><strong>${p.name}</strong><br><span class="creator-name">${p.category} · ${p.location}</span></div></div>`).join("");
+    }
+
+    function renderCategories() {
+      document.getElementById("category-directory").innerHTML = categoryGroups.map(group => `
+        <div class="card category-group">
+          <div class="category-icon">${group.icon}</div><h2>${group.group}</h2>
+          <div class="subcategory-list">${group.items.map(item => `<span>${item}</span>`).join("")}</div>
+        </div>`).join("");
+
+      const categorySelect = document.getElementById("categoryFilter");
+      categorySelect.innerHTML = `<option value="All">All Categories</option>` + categoryGroups.flatMap(g => [g.group, ...g.items]).map(item => `<option>${item}</option>`).join("");
+    }
+
+    function renderProfiles() {
+      const search = document.getElementById("searchInput")?.value.toLowerCase() || "";
+      const category = document.getElementById("categoryFilter")?.value || "All";
+      const location = document.getElementById("locationFilter")?.value || "All";
+      const price = document.getElementById("priceFilter")?.value || "All";
+
+      const filtered = profiles.filter(p => {
+        const matchesSearch = `${p.name} ${p.category} ${p.lane} ${p.location} ${p.specialty}`.toLowerCase().includes(search);
+        const matchesCategory = category === "All" || p.category === category || p.lane === category;
+        const matchesLocation = location === "All" || p.location === location;
+        const matchesPrice = price === "All" || p.price === price;
+        return matchesSearch && matchesCategory && matchesLocation && matchesPrice;
+      });
+
+      document.getElementById("profile-grid").innerHTML = filtered.length ? filtered.map(createProfileCard).join("") : `<div class="card info-box"><h2>No creators found yet</h2><p>Try a different category, location, or search term.</p></div>`;
+    }
+
+    function quickFilter(value) {
+      if (value === "Available Now") {
+        document.getElementById("searchInput").value = "available";
+      } else {
+        document.getElementById("searchInput").value = value;
+      }
+      renderProfiles();
+    }
+
+    function clearFilters() {
+      document.getElementById("searchInput").value = "";
+      document.getElementById("categoryFilter").value = "All";
+      document.getElementById("locationFilter").value = "All";
+      document.getElementById("priceFilter").value = "All";
+      renderProfiles();
+    }
+
+    function openDetail(item) {
+      document.getElementById("detail-title").textContent = item.title;
+      document.getElementById("detail-creator").textContent = "Created by " + item.creator;
+      document.getElementById("detail-image").src = item.image;
+      document.getElementById("detail-description").textContent = item.description + " This section will hold the full project story, service details, booking info, and creative notes.";
+      document.getElementById("detail-card-creator").textContent = item.creator;
+      document.getElementById("detail-avatar").textContent = item.creator[0];
+      showPage("detail");
+    }
+
+    function openBooking(name) {
+      document.getElementById("bookingCreator").value = name;
+      showPage("booking");
+    }
+
+    function openBookingFromDetail() {
+      openBooking(document.getElementById("detail-card-creator").textContent);
+    }
+
+    function openProfile(name) {
+      const profile = profiles.find(p => p.name === name);
+      if (!profile) return;
+      openDetail({ title: profile.name + " Profile", creator: profile.name, category: profile.category, description: profile.specialty, image: profile.image, likes: 0, comments: 0 });
+    }
+
+    function renderCollabs() {
+      document.getElementById("collab-feed").innerHTML = collabs.map(item => `<div class="card collab-request"><h3>${item}</h3><p>Open request · Message creator to connect</p><br><button class="mini-btn primary">Respond</button></div>`).join("");
+    }
+
+    function renderSpotlight() {
+      document.getElementById("spotlight-grid").innerHTML = profiles.slice(1,4).map(createProfileCard).join("");
+    }
+
+    renderHome();
+    renderCategories();
+    renderProfiles();
+    renderCollabs();
+    renderSpotlight();
+    openDetail(creations[0]);
+    showPage("home");
+  </script>
+</body>
+</html>
