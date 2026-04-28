@@ -717,8 +717,6 @@
 
     profiles.push(...savedCreators);
     products.push(...savedProducts);
-    communityPosts.push(...savedPosts);
-    collabs.push(...savedCollabs);
 
     const creations = profiles.slice(0, 4).map((p, i) => ({
       title: ["Downtown Night Shoot", "Studio Session Recap", "Fresh Fade Showcase", "Custom Brand Flyer"][i],
@@ -802,6 +800,9 @@
       "Mia Creates commented on your post",
       "New review received on your profile"
     ];
+
+    communityPosts.push(...savedPosts);
+    collabs.push(...savedCollabs);
 
     function showPage(pageId) {
       document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
