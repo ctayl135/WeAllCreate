@@ -25,7 +25,7 @@ Stripe responses in tests are simulated. Real sandbox transactions, real email d
 
 Railway is the selected low-cost starting host: one Docker service, one persistent volume at `/app/data`, a generated HTTPS address, and no separate database service. Its Hobby plan has a $5 monthly minimum that counts toward usage; resource usage can cost more. No paid service or domain purchase has been approved or provisioned.
 
-GitHub access is available. Railway account calls currently fail. The visible Stripe account `untitled.stream` was explicitly declined by the owner and must not be used. Connect the intended WeAllCreate Stripe test account before creating provider resources or testing payments.
+GitHub access is available. Railway account calls currently fail. A separate United States business named WeAllCreate and its WeAllCreate sandbox have now been created through Stripe's official claim flow. Catalog access works, and sandbox-only subscription fixtures have been created. Development-tool authorization is pending so that a suitable test credential can be used for Accounts v2 seller onboarding. The unrelated `untitled.stream` account was explicitly declined and must not be used.
 
 ## Secure configuration
 
@@ -37,7 +37,7 @@ Set these through the host's secret manager, never in Git, client code, Docker b
 | APP_ORIGIN | Exact generated HTTPS origin, without a trailing slash |
 | DATABASE_PATH | /app/data/weallcreate.sqlite |
 | TRUST_PROXY | railway on Railway; caddy only behind the bundled VPS proxy |
-| STRIPE_SECRET_KEY | Approved WeAllCreate account's sk_test_ key |
+| STRIPE_SECRET_KEY | Approved WeAllCreate sandbox's restricted test key; never a live key |
 | STRIPE_WEBHOOK_SECRET | Approved test webhook signing secret |
 | STRIPE_PRICE_ID | Approved recurring Creator Pro test price |
 | RESEND_API_KEY | Email sending key |
@@ -65,7 +65,7 @@ Keep the encryption key outside the volume. Enable provider volume backups and c
 ## Remaining public-launch gates
 
 1. Complete Railway authorization and approve any paid plan/usage. Verify Docker build, volume writes and HTTPS deployment.
-2. Connect the correct Stripe account, securely configure its key, and run real sandbox buyer/seller transactions.
+2. Complete development-tool authorization for the new WeAllCreate sandbox, securely configure its restricted test key, and run real sandbox buyer/seller transactions. Current temporary credentials do not permit Accounts v2 operations.
 3. Configure verified email delivery, administrator identity and support address.
 4. Approve pricing/benefits, seller terms, privacy/retention requirements and refund/chargeback policy. The site contains factual platform/privacy information, not jurisdiction-specific legal terms.
 5. Configure off-volume backups and monitoring alerts. ZIP/PDF malware scanning is not implemented; type limits and attachment delivery are enforced.
