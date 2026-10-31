@@ -16,3 +16,7 @@ jobs:
       - run: node --check server.mjs && node --check features.mjs && node --check app.js && node --check features-ui.js
       - run: node --test
       - run: docker build -t weallcreate:test .
+      - run: docker run -d --name weallcreate-smoke -p 127.0.0.1:3000:3000 -e APP_ORIGIN=https://weallcreate.example --mount type=volume,source=weallcreate-smoke-${{ github.run_id }},target=/app/data weallcreate:test
+      - run: node ci-smoke.mjs
+      - if: always()
+        run: docker rm -f weallcreate-smoke || true

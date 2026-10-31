@@ -19,7 +19,7 @@ Live views exclude example creators, invented messages and fake engagement. Orig
 
 Seven automated scenarios pass with `node --test`: account authorization, email recovery, restart persistence, full creator/social/admin journey, checkout/delivery, subscription lifecycle and encrypted backup/restore. Browser checks cover signup, profile editing, service publication, portfolio image upload/publication, community posting, creator search and mobile navigation. Script syntax checks pass.
 
-Stripe responses in tests are simulated. Real sandbox transactions, real email delivery, the Docker build and public deployment still require provider access. Docker is unavailable locally; the GitHub workflow builds the container on a hosted runner and must be checked after pushing.
+Stripe responses in tests are simulated. Real sandbox transactions, real email delivery and public deployment still require provider access. Docker is unavailable locally; GitHub Actions has successfully built the container and passed the application tests. The workflow also runs a production-container smoke test for static assets, secure cookies, verified-email publishing restrictions, persistent-volume writes and session persistence after a container restart.
 
 ## Hosting and access
 
