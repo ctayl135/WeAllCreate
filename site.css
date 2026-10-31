@@ -138,3 +138,5 @@
 #service-filters label { min-width:0; }
 .card-actions { display:flex; flex-wrap:wrap; gap:8px; }
 @media(max-width:800px) { #dashboard-content > .category-directory { grid-template-columns:1fr; } }
+/* Page hashes should reveal the page beneath the sticky navigation. */
+.page { scroll-margin-top:100vh; }
