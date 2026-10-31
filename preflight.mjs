@@ -1,5 +1,5 @@
-const missing=[];const env=process.env;
-for(const key of ['APP_ORIGIN','STRIPE_SECRET_KEY','STRIPE_WEBHOOK_SECRET','STRIPE_PRICE_ID','RESEND_API_KEY','EMAIL_FROM','ADMIN_EMAILS','BACKUP_ENCRYPTION_KEY','SUPPORT_EMAIL'])if(!env[key]||env[key].includes('REPLACE'))missing.push(key);
+const missing=[];const env={...process.env,APP_ORIGIN:process.env.APP_ORIGIN||(process.env.RENDER==='true'?process.env.RENDER_EXTERNAL_URL:'')};
+for(const key of ['APP_ORIGIN','STRIPE_SECRET_KEY','STRIPE_WEBHOOK_SECRET','STRIPE_CONNECT_WEBHOOK_SECRET','STRIPE_PRICE_ID','RESEND_API_KEY','EMAIL_FROM','ADMIN_EMAILS','BACKUP_ENCRYPTION_KEY','SUPPORT_EMAIL'])if(!env[key]||env[key].includes('REPLACE'))missing.push(key);
 const errors=[];
 if(!/^https:\/\/[^/]+$/.test(env.APP_ORIGIN||''))errors.push('APP_ORIGIN must be an HTTPS origin without a trailing slash.');
 if(!/^(?:sk|rk|rkcs)_test_/.test(env.STRIPE_SECRET_KEY||''))errors.push('A restricted Stripe test key is recommended; live payments remain disabled.');

@@ -10,7 +10,7 @@ The original logo, purple/cyan branding, dark theme and GitHub history are prese
 - Private messages, unread markers, refreshable inbox, community posts/comments/likes, group membership, collaboration applications and booking requests.
 - Reports, reversible content hiding, account suspension/restoration and an administration audit log. Administrators require verified email and the server-side ADMIN_EMAILS allowlist; the first registrant is never automatically an administrator.
 - Private uploaded PDF/ZIP/image deliverables and public PNG/JPEG/WebP images. Files are limited to 12 MB, with a 120 MB per-account allowance. Production publishing requires verified email. Private download links are buyer-bound, expire after five minutes, and check confirmed order status.
-- Test-only Stripe Checkout, Express Connect onboarding, destination payments, subscriptions and billing portal. Webhooks verify signatures/timestamps, handle duplicates and payment failure/expiry, and restrict downloads after refunds or disputes. Live keys are rejected.
+- Test-only Stripe Checkout, Accounts v2 onboarding with full creator Stripe Dashboard access, Stripe-managed seller risk, direct creator payments, subscriptions and billing portal. Webhooks verify signatures/timestamps, handle duplicates and payment failure/expiry, and restrict downloads after refunds or disputes. Live keys are rejected.
 - Migration tracking, encrypted SQLite/upload backups, tested restore, health checks, structured error logs, Docker/Caddy, Railway configuration and GitHub Actions tests/container build.
 
 Live views exclude example creators, invented messages and fake engagement. Original sample content remains in legacy source for reference.
@@ -19,13 +19,15 @@ Live views exclude example creators, invented messages and fake engagement. Orig
 
 Seven automated scenarios pass with `node --test`: account authorization, email recovery, restart persistence, full creator/social/admin journey, checkout/delivery, subscription lifecycle and encrypted backup/restore. Browser checks cover signup, profile editing, service publication, portfolio image upload/publication, community posting, creator search and mobile navigation. Script syntax checks pass.
 
-Stripe responses in tests are simulated. Real sandbox transactions, real email delivery and public deployment still require provider access. Docker is unavailable locally; GitHub Actions has successfully built the container and passed the application tests. The workflow also runs a production-container smoke test for static assets, secure cookies, verified-email publishing restrictions, persistent-volume writes and session persistence after a container restart.
+Automated suite Stripe responses are simulated. Separate real sandbox checks passed: website signup and hosted subscription checkout creation, a successful test-card payment, a declined test card, a test refund, a Stripe-managed-risk connected creator account, and a hosted onboarding link. The test creator remains restricted pending its onboarding requirements. Connected-creator purchases, actual webhook delivery, completed subscription checkout/renewal, real email delivery and public deployment are not yet verified. Docker is unavailable locally; GitHub Actions has successfully built the container and passed the application tests. The workflow also runs a production-container smoke test for static assets, secure cookies, verified-email publishing restrictions, persistent-volume writes and session persistence after a container restart.
 
 ## Hosting and access
 
-Railway is the selected low-cost starting host: one Docker service, one persistent volume at `/app/data`, a generated HTTPS address, and no separate database service. Its Hobby plan has a $5 monthly minimum that counts toward usage; resource usage can cost more. No paid service or domain purchase has been approved or provisioned.
+Railway was initially selected: one Docker service, one persistent volume at `/app/data`, a generated HTTPS address, and no separate database service. Its Hobby plan has a $5 monthly minimum that counts toward usage; resource usage can cost more. No paid service or domain purchase has been approved or provisioned.
 
-GitHub access is available. Railway account calls currently fail. A separate United States business named WeAllCreate and its WeAllCreate sandbox have now been created through Stripe's official claim flow. Catalog access works, and sandbox-only subscription fixtures have been created. Development-tool authorization is pending so that a suitable test credential can be used for Accounts v2 seller onboarding. The unrelated `untitled.stream` account was explicitly declined and must not be used.
+Railway signup is confirmed disabled in its authentication screen. Render is the prepared fallback: Starter Docker web service plus 1 GB persistent disk, approximately $7.25/month before extra usage/taxes. `render.yaml` defines the development branch, one instance, Virginia region, health check, persistent data mount, manual deployments and secret prompts. It has not been applied or paid for. Render connection/account access and owner spending approval remain required.
+
+GitHub access is available. Railway account calls currently fail. A separate United States business named WeAllCreate and its WeAllCreate sandbox have now been created through Stripe's official claim flow. Catalog access works, and sandbox-only subscription fixtures have been created. The owner approved a restricted sandbox-only integration key, which is stored privately outside Git. The broader CLI sign-in session was revoked; no live key is stored for this project. The unrelated `untitled.stream` account was explicitly declined and must not be used.
 
 ## Secure configuration
 
@@ -34,11 +36,12 @@ Set these through the host's secret manager, never in Git, client code, Docker b
 | Variable | Value |
 | --- | --- |
 | NODE_ENV | production |
-| APP_ORIGIN | Exact generated HTTPS origin, without a trailing slash |
+| APP_ORIGIN | Exact generated HTTPS origin; Render uses RENDER_EXTERNAL_URL when unset |
 | DATABASE_PATH | /app/data/weallcreate.sqlite |
-| TRUST_PROXY | railway on Railway; caddy only behind the bundled VPS proxy |
+| TRUST_PROXY | render on Render; railway on Railway; caddy behind the bundled VPS proxy |
 | STRIPE_SECRET_KEY | Approved WeAllCreate sandbox's restricted test key; never a live key |
-| STRIPE_WEBHOOK_SECRET | Approved test webhook signing secret |
+| STRIPE_WEBHOOK_SECRET | Platform test webhook signing secret |
+| STRIPE_CONNECT_WEBHOOK_SECRET | Connected-account test webhook signing secret |
 | STRIPE_PRICE_ID | Approved recurring Creator Pro test price |
 | RESEND_API_KEY | Email sending key |
 | EMAIL_FROM | Verified sender/domain |
@@ -46,15 +49,15 @@ Set these through the host's secret manager, never in Git, client code, Docker b
 | SUPPORT_EMAIL | Owner-selected public support address |
 | BACKUP_ENCRYPTION_KEY | Unique 32-byte key encoded as 64 hexadecimal characters |
 
-`node --env-file-if-exists=.env preflight.mjs` checks required configuration and prints only missing names/errors, never secrets. Configure email before opening public registration. Keep one replica because SQLite is on a local volume. Verify UID 1000 can write to the mounted volume; do not replace/delete a populated volume to fix permissions. Railway manages HTTPS; the Caddy Compose service is for a VPS only.
+`node --env-file-if-exists=.env preflight.mjs` checks required configuration and prints only missing names/errors, never secrets. Configure email before opening public registration. Keep one replica because SQLite is on a local volume. Verify UID 1000 can write to the mounted volume; do not replace/delete a populated volume to fix permissions. Render and Railway manage HTTPS; the Caddy Compose service is for a VPS only.
 
 ## Stripe acceptance checks
 
-Register `/api/stripe/webhook` for checkout.session.completed, checkout.session.async_payment_succeeded, checkout.session.async_payment_failed, checkout.session.expired, customer.subscription.created, customer.subscription.updated, customer.subscription.deleted, charge.refunded and charge.dispute.created.
+Register signed webhook delivery to `/api/stripe/webhook` from both the platform account (subscriptions) and connected accounts (direct creator purchases). Create two test webhook destinations at that URL: one for platform events and one for connected-account events. Store their signing secrets separately as STRIPE_WEBHOOK_SECRET and STRIPE_CONNECT_WEBHOOK_SECRET, and verify both sources end to end. Subscribe to checkout.session.completed, checkout.session.async_payment_succeeded, checkout.session.async_payment_failed, checkout.session.expired, customer.subscription.created, customer.subscription.updated, customer.subscription.deleted, charge.refunded and charge.dispute.created.
 
 Create separate test seller/buyer accounts, verify email, publish a portfolio, digital file and service, and finish Connect test onboarding. Test approved/declined cards, abandoned checkout, order states, private downloads, service purchases/messages, reviews, subscription renewal/failure/cancellation and webhook retries. A return redirect never grants purchase access.
 
-No commission is configured. Final Creator Pro price/benefits, refund funding and transfer-reversal operations remain owner decisions before real billing. Live activation requires a separate approved implementation change.
+No commission is configured. Buyers pay creators directly on their connected Stripe accounts. Creators receive full Stripe Dashboard access; Stripe collects its fees and manages unrecoverable seller payment losses. WeAllCreate Creator Pro subscriptions are separate platform-account charges. Final Creator Pro price/benefits, refunds, disputes and seller terms remain owner decisions before real billing. Live activation requires a separate approved implementation change.
 
 ## Backups and monitoring
 
@@ -64,8 +67,8 @@ Keep the encryption key outside the volume. Enable provider volume backups and c
 
 ## Remaining public-launch gates
 
-1. Complete Railway authorization and approve any paid plan/usage. Verify Docker build, volume writes and HTTPS deployment.
-2. Complete development-tool authorization for the new WeAllCreate sandbox, securely configure its restricted test key, and run real sandbox buyer/seller transactions. Current temporary credentials do not permit Accounts v2 operations.
+1. Connect Render and approve the prepared Starter service with 1 GB disk (approximately $7.25/month before extra usage/taxes). Verify Docker build, volume writes and HTTPS deployment.
+2. Finish test creator onboarding, verify direct creator purchases and both platform/Connect webhooks, and complete subscription lifecycle checks. Restricted sandbox key access and real basic payment tests now work.
 3. Configure verified email delivery, administrator identity and support address.
 4. Approve pricing/benefits, seller terms, privacy/retention requirements and refund/chargeback policy. The site contains factual platform/privacy information, not jurisdiction-specific legal terms.
 5. Configure off-volume backups and monitoring alerts. ZIP/PDF malware scanning is not implemented; type limits and attachment delivery are enforced.
@@ -77,8 +80,11 @@ Node.js 24; no dependencies to install. Run `node --env-file-if-exists=.env serv
 
 ## Provider references
 
+- [Render pricing](https://render.com/pricing)
+- [Render Blueprint configuration](https://render.com/docs/blueprint-spec)
+- [Render persistent disks](https://render.com/docs/disks)
 - [Railway billing](https://docs.railway.com/pricing/understanding-your-bill)
 - [Railway volume backups](https://docs.railway.com/volumes/backups)
-- [Stripe destination charges](https://docs.stripe.com/connect/destination-charges)
+- [Stripe direct charges](https://docs.stripe.com/connect/direct-charges)
 - [Stripe webhook handling](https://docs.stripe.com/events/manage-webhook-endpoints)
 - [Resend sending API](https://resend.com/docs/api-reference/emails/send-email)

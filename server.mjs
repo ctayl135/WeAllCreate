@@ -15,7 +15,7 @@ const fail = (status, message) => { throw Object.assign(new Error(message), { st
 const text = (v, max=200) => { if(typeof v !== 'string' || !v.trim() || v.length>max || /[<>\x00-\x08]/.test(v)) fail(400,'Please provide valid text (no HTML).'); return v.trim(); };
 const image = v => { if(!v||v==='/weallcreate-logo.png') return '/weallcreate-logo.png';if(/^\/api\/files\/[a-f0-9-]{36}$/.test(v))return v;let u;try{u=new URL(v);}catch{fail(400,'Enter a valid HTTPS image URL.');}if(u.protocol!=='https:') fail(400,'Image must use HTTPS.');return u.href; };
 export function createApp(options={}) {
- const origin=options.origin || process.env.APP_ORIGIN || 'http://localhost:3000';
+ const origin=options.origin || process.env.APP_ORIGIN || (process.env.RENDER==='true'?process.env.RENDER_EXTERNAL_URL:null) || 'http://localhost:3000';
  if(process.env.NODE_ENV==='production' && !origin.startsWith('https://')) throw Error('Production APP_ORIGIN must use HTTPS');
  const path=options.dbPath || process.env.DATABASE_PATH || join(root,'data/weallcreate.sqlite');
  if(path!==':memory:') mkdirSync(dirname(path),{recursive:true});
@@ -29,10 +29,12 @@ export function createApp(options={}) {
  const all=(sql,...args)=>db.prepare(sql).all(...args);
  const run=(sql,...args)=>db.prepare(sql).run(...args);
  if(!all('PRAGMA table_info(orders)').some(c=>c.name==='delivery')) db.exec("ALTER TABLE orders ADD COLUMN delivery TEXT");
+ if(!all('PRAGMA table_info(orders)').some(c=>c.name==='stripe_account')) db.exec('ALTER TABLE orders ADD COLUMN stripe_account TEXT');
  if(!all('PRAGMA table_info(users)').some(c=>c.name==='verified')) db.exec('ALTER TABLE users ADD COLUMN verified INTEGER DEFAULT 0');
  db.exec('CREATE TABLE IF NOT EXISTS auth_tokens(token TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES users(id),purpose TEXT NOT NULL,expires INTEGER NOT NULL)');
  db.exec('CREATE TABLE IF NOT EXISTS subscription_checkouts(user_id TEXT PRIMARY KEY,request_id TEXT NOT NULL,url TEXT,expires INTEGER NOT NULL)');
  const features=initFeatures({db,dbPath:path,options});
+ run('INSERT OR IGNORE INTO schema_migrations VALUES(?,?)',3,new Date().toISOString());
  const stopBackups=scheduleBackups(db,path,features.uploadDir);
  async function mail(to,subject,message) {
   if(options.mailer) return options.mailer({to,subject,text:message});
@@ -41,10 +43,10 @@ export function createApp(options={}) {
  }
  async function authMail(account,purpose) {const token=randomBytes(32).toString('hex');run('DELETE FROM auth_tokens WHERE expires<? OR (user_id=? AND purpose=?)',Date.now(),account.id,purpose);run('INSERT INTO auth_tokens VALUES(?,?,?,?)',hash(token),account.id,purpose,Date.now()+30*60000);await mail(account.email,purpose==='reset'?'Reset your WeAllCreate password':'Verify your WeAllCreate email',`Open this link within 30 minutes: ${origin}/#${purpose==='reset'?'reset-password':'verify-email'}?token=${token}\nIf you did not request this, ignore this email.`);}
  const rates=new Map();
- async function stripe(endpoint,params,method='POST',key) {
+ async function stripe(endpoint,params,method='POST',key,account) {
   const secret=process.env.STRIPE_SECRET_KEY || ''; if(!/^(?:sk|rk|rkcs)_test_/.test(secret)) fail(503,'Stripe test mode is not configured.');
   const v2=endpoint.startsWith('v2/');const payload=endpoint==='checkout/sessions'?{...params,integration_identifier:'weallcreate_'+Array.from(randomBytes(8),b=>String.fromCharCode(97+b%26)).join('')}:params;
-  const response=await fetch('https://api.stripe.com/'+(v2?'':'v1/')+endpoint,{method,headers:{Authorization:`Bearer ${secret}`,'Stripe-Version':'2026-10-28.endive',...(method==='POST'?{'Content-Type':v2?'application/json':'application/x-www-form-urlencoded'}:{}),...(key?{'Idempotency-Key':key}:{})},body:method==='POST'?(v2?JSON.stringify(payload):new URLSearchParams(payload)):undefined,signal:AbortSignal.timeout(15000)});
+  const response=await fetch('https://api.stripe.com/'+(v2?'':'v1/')+endpoint,{method,headers:{Authorization:`Bearer ${secret}`,'Stripe-Version':'2026-10-28.endive',...(account?{'Stripe-Account':account}:{}),...(method==='POST'?{'Content-Type':v2?'application/json':'application/x-www-form-urlencoded'}:{}),...(key?{'Idempotency-Key':key}:{})},body:method==='POST'?(v2?JSON.stringify(payload):new URLSearchParams(payload)):undefined,signal:AbortSignal.timeout(15000)});
   const data=await response.json(); if(!response.ok) { console.error('Stripe request failed:',data.error?.code); fail(502,'Payment provider could not complete the request.'); } return data;
  }
  async function subscribe(user) {
@@ -65,25 +67,30 @@ export function createApp(options={}) {
    if(!route.startsWith('/api/')) { if(!['GET','HEAD'].includes(method)) fail(405,'Method not allowed');const files={'/':'index.html','/app.js':'app.js','/features-ui.js':'features-ui.js','/legacy.js':'legacy.js','/site.css':'site.css','/weallcreate-logo.png':'weallcreate-logo.png'};if(!files[route]) fail(404,'Not found');res.setHeader('Content-Type',route.endsWith('.png')?'image/png':route.endsWith('.js')?'text/javascript':route.endsWith('.css')?'text/css':'text/html; charset=utf-8');res.end(method==='HEAD'?undefined:readFileSync(join(root,files[route])));return; }
    if(method!=='GET' && route!=='/api/stripe/webhook' && req.headers.origin!==origin) fail(403,'Request origin not allowed.');
    if(route==='/api/uploads'){const session=(req.headers.cookie||'').split(';').map(v=>v.trim()).find(v=>v.startsWith('wac_session='))?.slice(12);if(!session||!query('SELECT token FROM sessions WHERE token=? AND expires>?',hash(session),Date.now()))fail(401,'Please sign in before uploading.');}
-   const clientHeader=process.env.TRUST_PROXY==='railway'?req.headers['x-real-ip']:process.env.TRUST_PROXY==='caddy'?String(req.headers['x-forwarded-for']||'').split(',').at(-1)?.trim():null;
+   const clientHeader=process.env.TRUST_PROXY==='railway'?req.headers['x-real-ip']:process.env.TRUST_PROXY==='render'&&process.env.RENDER==='true'?String(req.headers['x-forwarded-for']||'').split(',')[0]?.trim():process.env.TRUST_PROXY==='caddy'?String(req.headers['x-forwarded-for']||'').split(',').at(-1)?.trim():null;
    const ip=typeof clientHeader==='string'&&isIP(clientHeader)?clientHeader:req.socket.remoteAddress;const now=Date.now();if(rates.size>10000) for(const [k,v] of rates) if(v.until<now) rates.delete(k);
    const rateKey=ip+(route.includes('/auth/')?':auth':':api');let rate=rates.get(rateKey);if(!rate||rate.until<now) rates.set(rateKey,rate={n:0,until:now+60000});if(++rate.n>(route.includes('/auth/')?20:240)) fail(429,'Too many requests. Try again shortly.');
    const chunks=[];let size=0;const limit=route==='/api/uploads'?17*1024*1024:65536;for await (const chunk of req) {size+=chunk.length;if(size>limit) fail(413,'Request too large.');chunks.push(chunk);}const raw=Buffer.concat(chunks).toString('utf8');
    if(route==='/api/stripe/webhook' && method==='POST') {
-    const secret=process.env.STRIPE_WEBHOOK_SECRET;if(!secret) fail(503,'Webhook not configured');
+    let event;try{event=JSON.parse(raw);}catch{fail(400,'Invalid webhook JSON');}
+    if(!event||!event.data?.object||typeof event.id!=='string'||typeof event.type!=='string')fail(400,'Invalid webhook event');
+    const secret=event.account?(process.env.STRIPE_CONNECT_WEBHOOK_SECRET||(process.env.NODE_ENV!=='production'?process.env.STRIPE_WEBHOOK_SECRET:null)):process.env.STRIPE_WEBHOOK_SECRET;if(!secret) fail(503,'Webhook not configured');
     const parts=(req.headers['stripe-signature']||'').split(',');const timestamp=parts.find(x=>x.startsWith('t='))?.slice(2);const expected=createHmac('sha256',secret).update(timestamp+'.'+raw).digest('hex');
-    if(!timestamp||Math.abs(now/1000-Number(timestamp))>300||!parts.filter(x=>x.startsWith('v1=')).some(x=>{const b=Buffer.from(x.slice(3),'hex');return b.length===32&&timingSafeEqual(b,Buffer.from(expected,'hex'));})) fail(400,'Invalid webhook signature');
-    const event=JSON.parse(raw);if(event.livemode!==false) fail(400,'Only test events accepted');if(query('SELECT id FROM events WHERE id=?',event.id)) return send(200,{received:true});
+    if(!timestamp||!Number.isFinite(Number(timestamp))||Math.abs(now/1000-Number(timestamp))>300||!parts.filter(x=>x.startsWith('v1=')).some(x=>{const b=Buffer.from(x.slice(3),'hex');return b.length===32&&timingSafeEqual(b,Buffer.from(expected,'hex'));})) fail(400,'Invalid webhook signature');
+    if(event.livemode!==false) fail(400,'Only test events accepted');if(query('SELECT id FROM events WHERE id=?',event.id)) return send(200,{received:true});
     const obj=event.data.object;
+    // A connected seller's events must only change that seller's direct-charge orders.
+    const paymentEvent=event.type.startsWith('checkout.session.')&&obj.mode!=='subscription'||event.type==='charge.refunded'||event.type==='charge.dispute.created';
+    if(paymentEvent){const order=obj.metadata?.order?query('SELECT stripe_account FROM orders WHERE id=?',obj.metadata.order):obj.payment_intent?query('SELECT stripe_account FROM orders WHERE payment_intent=?',obj.payment_intent):query('SELECT stripe_account FROM orders WHERE session=?',obj.id);if(!order||(order.stripe_account||null)!==(event.account||null))return send(200,{received:true});}
     if(event.type==='checkout.session.completed' || event.type==='checkout.session.async_payment_succeeded') {
      if(obj.mode==='payment' && obj.payment_status==='paid' && obj.currency==='usd') run("UPDATE orders SET status='paid',session=?,payment_intent=? WHERE id=? AND amount=? AND buyer=? AND (session IS NULL OR session=?) AND status IN ('pending','failed')",obj.id,obj.payment_intent||null,obj.metadata?.order||'',obj.amount_total,obj.metadata?.user||'',obj.id);
-     if(obj.mode==='subscription' && obj.customer) run('UPDATE users SET customer=? WHERE id=?',obj.customer,obj.metadata?.user||'');
+     if(obj.mode==='subscription' && obj.customer && !event.account) run('UPDATE users SET customer=? WHERE id=?',obj.customer,obj.metadata?.user||'');
     }
     if(event.type==='checkout.session.async_payment_failed')run("UPDATE orders SET status='failed' WHERE session=? AND status='pending'",obj.id);
     if(event.type==='checkout.session.expired')run("UPDATE orders SET status='expired' WHERE session=? AND status='pending'",obj.id);
     if(event.type==='charge.dispute.created')run("UPDATE orders SET status='disputed' WHERE payment_intent=?",obj.payment_intent);
-    if(event.type==='charge.refunded') {const sessions=await stripe('checkout/sessions?payment_intent='+encodeURIComponent(obj.payment_intent),{},'GET');for(const s of sessions.data||[]) run("UPDATE orders SET status='refunded' WHERE session=?",s.id);}
-    if(event.type.startsWith('customer.subscription.')) {
+    if(event.type==='charge.refunded') run("UPDATE orders SET status='refunded' WHERE payment_intent=? AND stripe_account IS ?",obj.payment_intent,event.account||null);
+    if(event.type.startsWith('customer.subscription.') && !event.account) {
      const sub=await stripe('subscriptions/'+encodeURIComponent(obj.id),{},'GET');
      run('UPDATE users SET subscription=?,customer=? WHERE id=?',sub.status,sub.customer,sub.metadata?.user||'');
     }
@@ -129,13 +136,13 @@ export function createApp(options={}) {
    }
    if(route.startsWith('/api/records/')&&method==='DELETE') {auth();const id=route.split('/').pop();if(query('SELECT owner FROM records WHERE id=?',id)?.owner!==user.id) fail(403,'You can only delete your own records.');run('DELETE FROM records WHERE id=?',id);return send(200,{ok:true});}
    if(route==='/api/bookings'&&method==='GET') {auth();return send(200,all("SELECT id,body FROM records WHERE kind='booking'").map(r=>({id:r.id,...JSON.parse(r.body)})).filter(r=>r.recipient===user.id));}
-   if(route==='/api/connect'&&method==='POST') {auth();let account=user.account;if(!account){const profile=query("SELECT body FROM records WHERE owner=? AND kind='profile'",user.id);if(!profile)fail(400,'Create your creator profile first.');const country=JSON.parse(profile.body).country||'US';const a=await stripe('v2/core/accounts',{contact_email:user.email,display_name:JSON.parse(profile.body).name,dashboard:'express',identity:{country},defaults:{responsibilities:{fees_collector:'application',losses_collector:'application'}},configuration:{recipient:{capabilities:{stripe_balance:{stripe_transfers:{requested:true}}}}},include:['configuration.recipient','requirements']},'POST','connect-'+user.id);account=a.id;run('UPDATE users SET account=? WHERE id=?',account,user.id);}const link=await stripe('v2/core/account_links',{account,use_case:{type:'account_onboarding',account_onboarding:{configurations:['recipient'],refresh_url:origin+'/#dashboard',return_url:origin+'/#dashboard'}}});return send(200,{url:link.url});}
+   if(route==='/api/connect'&&method==='POST') {auth();let account=user.account;if(!account){const profile=query("SELECT body FROM records WHERE owner=? AND kind='profile'",user.id);if(!profile)fail(400,'Create your creator profile first.');const country=JSON.parse(profile.body).country||'US';const a=await stripe('v2/core/accounts',{contact_email:user.email,display_name:JSON.parse(profile.body).name,dashboard:'full',identity:{country},defaults:{responsibilities:{fees_collector:'stripe',losses_collector:'stripe'}},configuration:{merchant:{capabilities:{card_payments:{requested:true}}}},include:['configuration.merchant','requirements']},'POST','connect-'+user.id);account=a.id;run('UPDATE users SET account=? WHERE id=?',account,user.id);}const link=await stripe('v2/core/account_links',{account,use_case:{type:'account_onboarding',account_onboarding:{refresh_url:origin+'/#dashboard',return_url:origin+'/#dashboard'}}});return send(200,{url:link.url});}
    if(route==='/api/checkout'&&method==='POST') {
     auth();if(process.env.NODE_ENV==='production'&&!user.verified) fail(403,'Verify your email in the dashboard before checkout.');
     auth();if(body.subscription) return send(200,{url:await subscribe(user)});
-    const record=query("SELECT r.* FROM records r JOIN users u ON u.id=r.owner WHERE r.id=? AND r.kind='product' AND r.hidden=0 AND u.suspended=0",body.product);if(!record) fail(404,'This listing is unavailable.');if(record.owner===user.id) fail(400,'You cannot buy your own product.');const seller=query('SELECT account FROM users WHERE id=?',record.owner);if(!seller.account) fail(409,'Seller has not connected payments.');const account=await stripe('v2/core/accounts/'+encodeURIComponent(seller.account)+'?include%5B0%5D=configuration.recipient',{},'GET');if(account.configuration?.recipient?.capabilities?.stripe_balance?.stripe_transfers?.status!=='active') fail(409,'Seller onboarding is incomplete.');const p=JSON.parse(record.body),id=randomUUID(),amount=Math.round(p.price*100);run('INSERT INTO orders(id,buyer,seller,product,amount,name,kind,created) VALUES(?,?,?,?,?,?,?,?)',id,user.id,record.owner,record.id,amount,p.name,p.fulfillment||'digital',Date.now());
+    const record=query("SELECT r.* FROM records r JOIN users u ON u.id=r.owner WHERE r.id=? AND r.kind='product' AND r.hidden=0 AND u.suspended=0",body.product);if(!record) fail(404,'This listing is unavailable.');if(record.owner===user.id) fail(400,'You cannot buy your own product.');const seller=query('SELECT account FROM users WHERE id=?',record.owner);if(!seller.account) fail(409,'Seller has not connected payments.');const account=await stripe('v2/core/accounts/'+encodeURIComponent(seller.account)+'?include%5B0%5D=configuration.merchant',{},'GET');if(account.configuration?.merchant?.capabilities?.card_payments?.status!=='active') fail(409,'Seller onboarding is incomplete.');const p=JSON.parse(record.body),id=randomUUID(),amount=Math.round(p.price*100);run('INSERT INTO orders(id,buyer,seller,product,amount,name,kind,created,stripe_account) VALUES(?,?,?,?,?,?,?,?,?)',id,user.id,record.owner,record.id,amount,p.name,p.fulfillment||'digital',Date.now(),seller.account);
     run('UPDATE orders SET delivery=? WHERE id=?',p.download,id);
-    const session=await stripe('checkout/sessions',{mode:'payment','line_items[0][price_data][currency]':'usd','line_items[0][price_data][unit_amount]':String(amount),'line_items[0][price_data][product_data][name]':p.name,'line_items[0][quantity]':'1','payment_intent_data[transfer_data][destination]':seller.account,'metadata[order]':id,'metadata[user]':user.id,success_url:origin+'/?checkout=success#dashboard',cancel_url:origin+'/?checkout=cancelled#marketplace'},'POST',id);run('UPDATE orders SET session=? WHERE id=?',session.id,id);return send(200,{url:session.url});
+    const session=await stripe('checkout/sessions',{mode:'payment','line_items[0][price_data][currency]':'usd','line_items[0][price_data][unit_amount]':String(amount),'line_items[0][price_data][product_data][name]':p.name,'line_items[0][quantity]':'1','metadata[order]':id,'metadata[user]':user.id,success_url:origin+'/?checkout=success#dashboard',cancel_url:origin+'/?checkout=cancelled#marketplace'},'POST',id,seller.account);run('UPDATE orders SET session=? WHERE id=?',session.id,id);return send(200,{url:session.url});
    }
    if(route==='/api/billing'&&method==='POST') {auth();if(!user.customer) fail(400,'No billing account yet.');const s=await stripe('billing_portal/sessions',{customer:user.customer,return_url:origin+'/#dashboard'});return send(200,{url:s.url});}
    if(route.startsWith('/api/download/')&&method==='GET') {auth();const order=query("SELECT * FROM orders WHERE id=? AND buyer=? AND status='paid'",route.split('/').pop(),user.id);if(!order) fail(403,'A confirmed purchase is required.');if(!order.delivery) fail(410,'This is a service order. Contact the creator in Messages.');if(features.download(order,res))return;res.writeHead(302,{Location:order.delivery});return res.end();}
@@ -145,6 +152,3 @@ export function createApp(options={}) {
  server.requestTimeout=30000;server.headersTimeout=15000;server.maxRequestsPerSocket=1000;server.on('close',()=>{stopBackups();db.close();});return server;
 }
 if(process.argv[1]===fileURLToPath(import.meta.url)) createApp().listen(Number(process.env.PORT||3000),'0.0.0.0',()=>console.log('WeAllCreate ready on port '+(process.env.PORT||3000)));
-
-
-
